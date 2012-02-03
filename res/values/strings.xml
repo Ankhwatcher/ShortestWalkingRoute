@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ShortestWalkingRoute</string>
+    <string name="gps_tag">GPS Location:</string>
+    <string name="network_tag">Network Location:</string>
+    <string name="obtaining_location">Obtaining Location</string>
+
+</resources>

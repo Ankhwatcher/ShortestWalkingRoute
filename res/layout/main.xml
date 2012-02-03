@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+		    <TableRow
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content" >
+
+		    <TextView
+		        android:layout_gravity="left"
+		        android:text="@string/network_tag" />
+	
+		    <TextView
+		        android:id="@+id/network_display"
+		        android:layout_gravity="right"
+		        android:text="@string/obtaining_location" />
+	
+	    </TableRow>
+    
+	    <TableRow
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content" >
+
+	        <TextView
+	            android:layout_gravity="left"
+	            android:text="@string/gps_tag" />
+
+	        <TextView
+	            android:id="@+id/gps_display"
+	            android:layout_gravity="right"
+	            android:text="@string/obtaining_location" />
+	    </TableRow>
+	
+	</TableLayout>
