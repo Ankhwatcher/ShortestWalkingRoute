@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent">
+<ScrollView
+		 xmlns:android="http://schemas.android.com/apk/res/android"
+		 android:layout_width="fill_parent"
+		 android:layout_height="fill_parent"
+		 >
+<HorizontalScrollView
+		 android:layout_width="fill_parent"
+		 android:layout_height="wrap_content" >     
+		<TableLayout android:id="@+id/main_table"
+	    	android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:stretchColumns="*"
+			android:background="#ffffff">
 		    <TableRow
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content" >
-
-		    <TextView
-		        android:layout_gravity="left"
+				<TextView
+		        android:layout_gravity="center"
+		        android:textColor="@color/solid_blue"
+		        android:textStyle="bold"
 		        android:text="@string/network_tag" />
-	
-		    <TextView
-		        android:id="@+id/network_display"
-		        android:layout_gravity="right"
-		        android:text="@string/obtaining_location" />
-	
-	    </TableRow>
-    
-	    <TableRow
+				<TextView
+		        android:layout_gravity="center"
+		        android:textColor="@android:color/black"
+		        android:text="@string/pipe_divider" />
+		    	<TextView
+		    	android:layout_gravity="center"
+		        android:textColor="@color/solid_red"
+		        android:textStyle="bold"
+		        android:text="@string/gps_tag" />
+	  	  </TableRow>
+<!--	    <TableRow
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content" >
 
@@ -30,5 +43,10 @@
 	            android:layout_gravity="right"
 	            android:text="@string/obtaining_location" />
 	    </TableRow>
+-->
+
+		    
 	
 	</TableLayout>
+</HorizontalScrollView>	
+</ScrollView>

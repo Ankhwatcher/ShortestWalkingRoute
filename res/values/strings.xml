@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">ShortestWalkingRoute</string>
-    <string name="gps_tag">GPS Location:</string>
-    <string name="network_tag">Network Location:</string>
+    <string name="gps_tag">GPS Location</string>
+    <string name="network_tag">Network Location</string>
     <string name="obtaining_location">Obtaining Location</string>
-
+	<string name="pipe_divider">\u0020|\u0020</string>
 </resources>
