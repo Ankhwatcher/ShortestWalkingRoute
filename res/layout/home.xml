@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginRight="16dip"
+    android:layout_marginLeft="16dip"
+    android:orientation="vertical"
+    android:id="@+id/home_table">
+
+    <TableRow
+        android:layout_height="wrap_content"
+        android:padding="6dip"
+        android:clickable="true"
+        android:id="@+id/fragmentRow0">
+
+        <ImageView
+            android:contentDescription="@string/ic_menu_capture_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_menu_capture" />
+        
+	    <TextView
+	        android:layout_width="fill_parent"
+	        android:text="@string/fragment0"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
+	        android:layout_gravity="center_vertical"/>
+		</TableRow>
+	<View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+</TableLayout>
