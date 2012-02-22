@@ -3,7 +3,11 @@
 *.apk
 *.ap_
 *.dex
+*.project
+*.ini
+proguard.cfg
+project.properties
+lint.xml
 bin/
 gen/
 .dropbox
-lint.xml
