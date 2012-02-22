@@ -1,7 +1,9 @@
 *.class
+*.classpath
 *.apk
 *.ap_
 *.dex
 bin/
 gen/
 .dropbox
+lint.xml
