@@ -5,3 +5,4 @@
 bin/
 gen/
 .dropbox
+lint.xml
