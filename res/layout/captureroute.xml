@@ -1,43 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-		 xmlns:android="http://schemas.android.com/apk/res/android"
-		 android:layout_width="fill_parent"
-		 android:layout_height="fill_parent"
-		 >
-<HorizontalScrollView
-		 android:layout_width="fill_parent"
-		 android:layout_height="wrap_content" >     
-		<TableLayout android:id="@+id/capture_table"
-	    	android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:stretchColumns="*"
-			android:background="#ffffff">
-		    <TableRow>
-				<TextView
-		        android:layout_gravity="center"
-		        android:textColor="@color/solid_blue"
-		        android:textStyle="bold"
-		        android:text="@string/cell1_tag" />
-				<TextView
-		        android:layout_gravity="center"
-		        android:textColor="@android:color/black"
-		        android:text="@string/pipe_divider" />
-		    	<TextView
-		    	android:layout_gravity="center"
-		        android:textColor="@color/solid_red"
-		        android:textStyle="bold"
-		        android:text="@string/cell2_tag" />
-		    	<TextView
-		        android:layout_gravity="center"
-		        android:textColor="@android:color/black"
-		        android:text="@string/pipe_divider" />
-		    	<TextView
-		    	android:layout_gravity="center"
-		        android:textColor="@color/solid_green"
-		        android:textStyle="bold"
-		        android:text="@string/cell3_tag" />
-	  	  </TableRow>
-<!--	    <TableRow
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <HorizontalScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TableLayout
+            android:id="@+id/capture_table"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:stretchColumns="*" >
+
+            <TableRow>
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:text="@string/cell1_tag"
+                    android:textColor="@color/solid_blue"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:text="@string/pipe_divider"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:text="@string/cell2_tag"
+                    android:textColor="@color/solid_red"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:text="@string/pipe_divider"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:text="@string/cell3_tag"
+                    android:textColor="@color/solid_green"
+                    android:textStyle="bold" />
+            </TableRow>
+            <!--
+    	    <TableRow
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content" >
 
@@ -49,11 +57,10 @@
 	            android:id="@+id/gps_display"
 	            android:layout_gravity="right"
 	            android:text="@string/obtaining_location" />
-	    </TableRow>
--->
+	    </TableRow>
+            -->
 
-		    
-	
-	</TableLayout>
-</HorizontalScrollView>	
+        </TableLayout>
+    </HorizontalScrollView>
+
 </ScrollView>

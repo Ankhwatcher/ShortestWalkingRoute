@@ -6,13 +6,15 @@
     <string name="cell2_tag">Accuracy(m)</string>
     <string name="cell3_tag">Speed(m/s)</string>
     <string name="obtaining_location">Obtaining Location</string>
-	<string name="pipe_divider">\u0020|\u0020</string>
-	<string name="fragment0">Capture Route</string>
-	<string name="fragment1">Display Routes</string>
-	<string-array name="fragment_names">
-	    <item>@string/fragment0</item>
-		<item>@string/fragment1</item>
-	</string-array>
-	
-	<string name="ic_menu_capture_description">Capture Route menu icon</string>
+    <string name="pipe_divider">\u0020|\u0020</string>
+    <string name="fragment0">Capture Route</string>
+    <string name="fragment1">Display Routes</string>
+
+    <string-array name="fragment_names">
+        <item>@string/fragment0</item>
+        <item>@string/fragment1</item>
+    </string-array>
+
+    <string name="ic_menu_capture_description">Capture Route menu icon</string>
+
 </resources>
