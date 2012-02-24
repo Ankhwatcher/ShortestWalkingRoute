@@ -21,7 +21,16 @@ public class HomeActivity extends Activity
 	    	Intent intent = new Intent(HAContext,CaptureRouteActivity.class);
 	    	startActivity(intent);
 		}
-	};	
+	};
+	private OnClickListener fragmentLaunch1 = new OnClickListener()
+	{
+	    //@Override
+		public void onClick(View v)
+	    {
+	    	Intent intent = new Intent(HAContext,DisplayRoutesActivity.class);
+	    	startActivity(intent);
+		}
+	};
 	
 	
     /** Called when the activity is first created. */
@@ -30,9 +39,19 @@ public class HomeActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
-        TableRow fragmentRow0 =  (TableRow) findViewById(R.id.fragmentRow0);
         
+        /*SetOnClickListener For Capture Route*/
+        TableRow fragmentRow0 =  (TableRow) findViewById(R.id.fragmentRow0);
 		fragmentRow0.setOnClickListener(fragmentLaunch0);
+		
+		/*SetOnClickListener and visibility for Display Routes only if at least one route is recorded*/
+		FixOpenHelper fixHelper = new FixOpenHelper(this);
+		if (fixHelper.highestRoute() >= 1)
+		{
+			TableRow fragmentRow1 =  (TableRow) findViewById(R.id.fragmentRow1);
+			fragmentRow1.setVisibility(0);
+			fragmentRow1.setOnClickListener(fragmentLaunch1);
+		}
     }
 }
 

@@ -8,6 +8,7 @@
 proguard.cfg
 project.properties
 lint.xml
+apikeys.xml
 bin/
 gen/
 .dropbox

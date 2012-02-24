@@ -205,6 +205,15 @@ public class CaptureRouteActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		/*
+		 * Setting this shared preference will prevent the application from
+		 * continuing capturing the route when it is restarted.
+		 */
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putBoolean("capturingRoute", false);
+		editor.commit();
+
 		if (fixHelper != null) {
 			fixHelper.close();
 		}
