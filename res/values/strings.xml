@@ -15,6 +15,14 @@
         <item>@string/fragment1</item>
     </string-array>
 
+    <string name="ic_launcher_description">Launcher icon</string>
     <string name="ic_menu_capture_description">Capture Route menu icon</string>
+    <string name="ic_menu_display_description">Display Routes menu icon</string>
+
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="route">Route </string>
+    <string name="select_routes_to_display">Routes</string>
+
 
 </resources>

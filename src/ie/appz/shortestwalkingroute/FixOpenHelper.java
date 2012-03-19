@@ -8,9 +8,9 @@ import android.location.Location;
 import android.util.Log;
 
 public class FixOpenHelper extends SQLiteOpenHelper {
-	
+
 	private static final String DATABASE_NAME = "fixtable.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 	public static final String TABLE_NAME = "fix_table";
 	public static final String COLUMN_ID = "_id";
 	public static final String ROUTE_NUMBER = "route_number";
@@ -20,12 +20,13 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 	public static final String SPEED = "speed";
 	public static final String SOURCE = "source";
 	public static final String TIME = "time";
+	public static final String TARGET = "target";
 
 	// Database creation SQL statement
 	private static final String DATABASE_CREATE = "create table " + TABLE_NAME + "(" + COLUMN_ID
-			+ " integer primary key autoincrement, " + ROUTE_NUMBER + " integer, " + LATITUDE + " real," + LONGITUDE
-			+ " real," + ACCURACY + " real," + SPEED + " real," + TIME + " integer, " + SOURCE + " text not null"
-			+ ");";
+			+ " integer primary key autoincrement, " + ROUTE_NUMBER + " integer, " + TARGET + " integer," + LATITUDE
+			+ " real," + LONGITUDE + " real," + ACCURACY + " real," + SPEED + " real," + TIME + " integer, " + SOURCE
+			+ " text not null" + ");";
 
 	public FixOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -44,34 +45,49 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 
-	public void addFix(int routeNo,Location location ) {
-		
+	public void addFix(int routeNo, Location location) {
+
 		SQLiteDatabase db = getWritableDatabase();
-		db.execSQL("insert into "+ TABLE_NAME+ "("+ ROUTE_NUMBER+ ", "+ LATITUDE+ ", "
-				+ LONGITUDE+ ", "+ ACCURACY+ ", "+ SPEED+ ", "+ SOURCE+ ", "+ TIME+ ") " 
-				+"values("+routeNo+", "+location.getLatitude()+", "+location.getLongitude()+", "+location.getAccuracy()+", "+location.getSpeed()+","
-				+" '"+location.getProvider()+"', "+location.getTime()+");");
-		
+		db.execSQL("insert into " + TABLE_NAME + "(" + ROUTE_NUMBER + ", " + LATITUDE + ", " + LONGITUDE + ", "
+				+ ACCURACY + ", " + SPEED + ", " + SOURCE + ", " + TIME + ") " + "values(" + routeNo + ", "
+				+ location.getLatitude() + ", " + location.getLongitude() + ", " + location.getAccuracy() + ", "
+				+ location.getSpeed() + "," + " '" + location.getProvider() + "', " + location.getTime() + ");");
+
 	}
-	
-	public int highestRoute()
-	{
+
+	public int highestRoute() {
 		SQLiteDatabase db = getReadableDatabase();
 		int highRoute = 0;
 		try {
-            
-            Cursor results = db.rawQuery("SELECT MAX("+ROUTE_NUMBER+") FROM "+TABLE_NAME, null);
-            if (results.moveToFirst())
-            {
-            	highRoute = results.getInt(0);
-            }
-        } catch (Exception e)
-        {
-            Log.e(FixOpenHelper.class.getName(), "Unable to get highestRoute.", e);
-        }
-        	
-            return highRoute;
-        
+
+			Cursor results = db.rawQuery("SELECT MAX(" + ROUTE_NUMBER + ") FROM " + TABLE_NAME, null);
+			if (results.moveToFirst()) {
+				highRoute = results.getInt(0);
+			}
+			results.close();
+		} catch (Exception e) {
+			Log.e(FixOpenHelper.class.getName(), "Unable to get highestRoute.", e);
+		}
+
+		return highRoute;
+
+	}
+
+	public Cursor routeFixes(int routeNo)
+	{
+		SQLiteDatabase db = getReadableDatabase();
+		
+		return db.query(TABLE_NAME,new String[] {LATITUDE,LONGITUDE,ACCURACY}, ROUTE_NUMBER +" == "+routeNo, null, null, null, COLUMN_ID);
+		
 	}
 	
+	/*
+	 * public Cursor routeSelection(){ SQLiteDatabase db =
+	 * getWritableDatabase(); String[] columns = new String[]{ROUTE_NUMBER,
+	 * DISPLAY}; Cursor cursor = db.query(DATABASE_NAME, columns, null, null,
+	 * null, null, null);
+	 * 
+	 * return cursor; }
+	 */
+
 }

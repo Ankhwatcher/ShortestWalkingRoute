@@ -8,7 +8,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.format.Time;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -25,74 +29,122 @@ public class CaptureRouteActivity extends Activity {
 
 	// String networkLocation;
 	private int highestRoute = 0;
-	private Long startMillis;
+
 	LocationListener gpsListener, networkListener;
 	LocationManager locationManager;
 	Location lastLocation = null;
 	FixOpenHelper fixHelper = new FixOpenHelper(this);
+	ProgressBar captureProgress;
+	Button captureButton = null;
+
+	private OnClickListener startCapture = new OnClickListener() {
+
+		public void onClick(View v) {
+			captureButton.setText(R.string.stop);
+			captureButton.setOnClickListener(stopCapture);
+
+			locationManager = (LocationManager) CaptureRouteActivity.this.getSystemService(Context.LOCATION_SERVICE);
+
+			/*
+			 * Start Count Time startTime = new Time(); startTime.setToNow();
+			 * startMillis = startTime.toMillis(false);
+			 */
+
+			// Define a listener that responds to location updates
+			networkListener = new LocationListener() {
+				public void onLocationChanged(Location location) {
+					// Called when a new location is found by the network
+					// location
+					// provider.
+					makeUseOfNetwork(location);
+				}
+
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+				}
+
+				public void onProviderEnabled(String provider) {
+				}
+
+				public void onProviderDisabled(String provider) {
+				}
+			};
+			gpsListener = new LocationListener() {
+				public void onLocationChanged(Location location) {
+					// Called when a new location is found by the network
+					// location
+					// provider.
+					makeUseOfGPS(location);
+				}
+
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+				}
+
+				public void onProviderEnabled(String provider) {
+				}
+
+				public void onProviderDisabled(String provider) {
+				}
+			};
+
+			/*
+			 * Register the listener with the Location Manager to receive
+			 * location updates
+			 */
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, networkListener);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 2, gpsListener);
+			/*
+			 * The two integers in this request are the time (ms) and distance (m)
+			 * intervals of notifications respectively.
+			 */
+
+			captureProgress.setVisibility(0);
+			Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			if (location == null) {
+				location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			}
+			addRow(location);
+		}
+
+	};
+
+	private OnClickListener stopCapture = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			captureButton.setText(R.string.start);
+			captureButton.setOnClickListener(startCapture);
+
+			// Hide spinner so user knows that location is no longer capturing
+			captureProgress.setVisibility(4);
+			// Kill location Listeners
+			locationManager.removeUpdates(networkListener);
+			locationManager.removeUpdates(gpsListener);
+
+			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+			// Set capturingRoute to false
+			SharedPreferences.Editor editor = settings.edit();
+			editor.putBoolean("capturingRoute", false);
+
+			// Commit the edits!
+			editor.commit();
+
+		}
+
+	};
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		// requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.captureroute);
+		captureProgress = (ProgressBar) findViewById(R.id.captureProgress);
 
+		captureButton = (Button) findViewById(R.id.captureButton);
+
+		captureButton.setOnClickListener(startCapture);
 		// Acquire a reference to the system Location Manager
-		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-		// Start Count
-		Time startTime = new Time();
-		startTime.setToNow();
-		startMillis = startTime.toMillis(false);
-
-		// Define a listener that responds to location updates
-		networkListener = new LocationListener() {
-			public void onLocationChanged(Location location) {
-				// Called when a new location is found by the network location
-				// provider.
-				makeUseOfNetwork(location);
-			}
-
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-			}
-
-			public void onProviderEnabled(String provider) {
-			}
-
-			public void onProviderDisabled(String provider) {
-			}
-		};
-		gpsListener = new LocationListener() {
-			public void onLocationChanged(Location location) {
-				// Called when a new location is found by the network location
-				// provider.
-				makeUseOfGPS(location);
-			}
-
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-			}
-
-			public void onProviderEnabled(String provider) {
-			}
-
-			public void onProviderDisabled(String provider) {
-			}
-		};
-
-		// Register the listener with the Location Manager to receive location
-		// updates
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, networkListener);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, gpsListener);
-		// The two integers in this request are the time and distance intervals
-		// of notifications respectively.
-
-		setProgressBarIndeterminateVisibility(true);
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if (location == null) {
-			location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		}
-		addRow(location);
 
 	}
 
@@ -113,10 +165,11 @@ public class CaptureRouteActivity extends Activity {
 	}
 
 	protected void addRow(Location location) {
-		Time currentTime = new Time();
-		currentTime.setToNow();
-		long currentMillis = currentTime.toMillis(false);
-		long runningMillis = currentMillis - startMillis;
+		/*
+		 * Time currentTime = new Time(); currentTime.setToNow(); long
+		 * currentMillis = currentTime.toMillis(false); long runningMillis =
+		 * currentMillis - startMillis;
+		 */
 
 		// Convert the location's longitude and latitude properties into strings
 		String latitude = new Double(location.getLatitude()).toString();
@@ -185,26 +238,11 @@ public class CaptureRouteActivity extends Activity {
 
 		fixHelper.addFix(highestRoute, location);
 
-		if (runningMillis > 60000) {
-			// Kill location Listeners
-			locationManager.removeUpdates(networkListener);
-			locationManager.removeUpdates(gpsListener);
-
-			// Hide spinner so user knows that location is no longer capturing
-			setProgressBarIndeterminateVisibility(false);
-
-			// Set capturingRoute to false
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putBoolean("capturingRoute", false);
-
-			// Commit the edits!
-			editor.commit();
-		}
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onStop() {
+		super.onStop();
 		/*
 		 * Setting this shared preference will prevent the application from
 		 * continuing capturing the route when it is restarted.
