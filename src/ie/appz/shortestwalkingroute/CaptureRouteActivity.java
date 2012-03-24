@@ -1,12 +1,18 @@
 package ie.appz.shortestwalkingroute;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.text.format.Time;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,9 +32,8 @@ import android.widget.Toast;
 public class CaptureRouteActivity extends Activity {
 
 	public static final String PREFS_NAME = "ROUTE_PREFS";
-
-	// String networkLocation;
 	private int highestRoute = 0;
+	private static final int CAPTURING_ROUTE = 1;
 
 	LocationListener gpsListener, networkListener;
 	LocationManager locationManager;
@@ -36,6 +41,7 @@ public class CaptureRouteActivity extends Activity {
 	FixOpenHelper fixHelper = new FixOpenHelper(this);
 	ProgressBar captureProgress;
 	Button captureButton = null;
+	Context getThis = this;
 
 	private OnClickListener startCapture = new OnClickListener() {
 
@@ -93,16 +99,31 @@ public class CaptureRouteActivity extends Activity {
 			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, networkListener);
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 2, gpsListener);
 			/*
-			 * The two integers in this request are the time (ms) and distance (m)
-			 * intervals of notifications respectively.
+			 * The two integers in this request are the time (ms) and distance
+			 * (m) intervals of notifications respectively.
 			 */
 
-			captureProgress.setVisibility(0);
-			Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			if (location == null) {
-				location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			highestRoute = fixHelper.highestRoute();
+			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+			if (!settings.getBoolean("capturingRoute", false)) {
+				SharedPreferences.Editor editor = settings.edit();
+				editor.putBoolean("capturingRoute", true);
+				editor.commit();
+				highestRoute++;
+				Context context = getApplicationContext();
+				CharSequence text = "Now Capturing Route Number: " + highestRoute;
+				int duration = Toast.LENGTH_SHORT;
+
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+
 			}
-			addRow(location);
+			// Show progress spinner
+			captureProgress.setVisibility(0);
+
+			CharSequence contentText = "Capturing Route: " + highestRoute;
+			Notification(contentText);
+
 		}
 
 	};
@@ -127,7 +148,8 @@ public class CaptureRouteActivity extends Activity {
 
 			// Commit the edits!
 			editor.commit();
-
+			NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			notificationManager.cancel(CAPTURING_ROUTE);
 		}
 
 	};
@@ -138,13 +160,14 @@ public class CaptureRouteActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		// requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		setContentView(R.layout.captureroute);
 		captureProgress = (ProgressBar) findViewById(R.id.captureProgress);
 
 		captureButton = (Button) findViewById(R.id.captureButton);
 
 		captureButton.setOnClickListener(startCapture);
-		// Acquire a reference to the system Location Manager
+		getThis = this;
 
 	}
 
@@ -220,24 +243,27 @@ public class CaptureRouteActivity extends Activity {
 		mainTable
 				.addView(dynamicRow, new TableLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 
-		highestRoute = fixHelper.highestRoute();
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-		if (!settings.getBoolean("capturingRoute", false)) {
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putBoolean("capturingRoute", true);
-			editor.commit();
-			highestRoute++;
-			Context context = getApplicationContext();
-			CharSequence text = "Now Capturing Route Number: " + highestRoute;
-			int duration = Toast.LENGTH_SHORT;
-
-			Toast toast = Toast.makeText(context, text, duration);
-			toast.show();
-
-		}
-
 		fixHelper.addFix(highestRoute, location);
 
+	}
+
+	private void Notification(CharSequence contentText) {
+		Intent notificationIntent = new Intent(this, CaptureRouteActivity.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+		Builder nCompatBuilder = new NotificationCompat.Builder(this);
+		nCompatBuilder.setAutoCancel(false);
+		nCompatBuilder.setOngoing(true);
+		nCompatBuilder.setContentTitle(getString(R.string.app_name));
+		nCompatBuilder.setContentText(contentText);
+		nCompatBuilder.setContentIntent(contentIntent);
+
+		nCompatBuilder.setSmallIcon(R.drawable.ic_menu_capture);
+
+		Notification notification = nCompatBuilder.getNotification();
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		notificationManager.notify(CAPTURING_ROUTE, notification);
 	}
 
 	@Override
@@ -246,14 +272,29 @@ public class CaptureRouteActivity extends Activity {
 		/*
 		 * Setting this shared preference will prevent the application from
 		 * continuing capturing the route when it is restarted.
+		 * 
+		 * SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		 * SharedPreferences.Editor editor = settings.edit();
+		 * editor.putBoolean("capturingRoute", false); editor.commit();
+		 */
+
+		if (fixHelper != null) {
+			fixHelper.close();
+		}
+
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		/*
+		 * Setting this shared preference will prevent the application from
+		 * continuing capturing the route when it is restarted.
 		 */
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putBoolean("capturingRoute", false);
 		editor.commit();
-
-		if (fixHelper != null) {
-			fixHelper.close();
-		}
 	}
 }
