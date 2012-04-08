@@ -1,4 +1,4 @@
-package ie.appz.shortestwalkingroute;
+package ie.appz.shortestwalkingroute.sqlite;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -21,6 +21,7 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 	public static final String SOURCE = "source";
 	public static final String TIME = "time";
 	public static final String TARGET = "target";
+	public static final String URL = "url";
 
 	// Database creation SQL statement
 	private static final String DATABASE_CREATE = "create table " + TABLE_NAME + "(" + COLUMN_ID
@@ -73,21 +74,56 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 
 	}
 
-	public Cursor routeFixes(int routeNo)
-	{
+	public long totalRouteTime(int routeNo) {
+		long diffTime = 0;
 		SQLiteDatabase db = getReadableDatabase();
-		
-		return db.query(TABLE_NAME,new String[] {LATITUDE,LONGITUDE,ACCURACY}, ROUTE_NUMBER +" == "+routeNo, null, null, null, COLUMN_ID);
-		
+		try {
+			Cursor results = db.rawQuery("SELECT MAX(" + TIME + ") AS \"MAXTIME\", MIN(" + TIME
+					+ ") AS \"MINTIME\" FROM " + TABLE_NAME + " WHERE " + ROUTE_NUMBER + " = " + routeNo, null);
+			if (results.moveToFirst()) {
+				diffTime = results.getLong(0) - results.getLong(1);
+			}
+			results.close();
+		} catch (Exception e) {
+			Log.e(FixOpenHelper.class.getName(), "Unable to get diffTime for Route " + routeNo + ".", e);
+		}
+		return diffTime;
+	}
+
+	public float minimumAccuracy(int routeNo) {
+		float minAcc = 0;
+		SQLiteDatabase db = getReadableDatabase();
+		try {
+			Cursor results = db.rawQuery("SELECT MIN(" + ACCURACY + ") FROM " + TABLE_NAME, null);
+			if (results.moveToFirst()) {
+				minAcc = results.getFloat(0);
+			}
+			results.close();
+		} catch (Exception e) {
+			Log.e(FixOpenHelper.class.getName(), "Unable to get minimum Accuracy for Route " + routeNo + ".", e);
+		}
+		return minAcc;
+	}
+
+	public Cursor routeFixesTime(int routeNo) {
+		SQLiteDatabase db = getReadableDatabase();
+
+		return db.query(TABLE_NAME, new String[] { LATITUDE, LONGITUDE, ACCURACY, TIME }, ROUTE_NUMBER + " = "
+				+ routeNo, null, null, null, COLUMN_ID);
+
 	}
 	
-	/*
-	 * public Cursor routeSelection(){ SQLiteDatabase db =
-	 * getWritableDatabase(); String[] columns = new String[]{ROUTE_NUMBER,
-	 * DISPLAY}; Cursor cursor = db.query(DATABASE_NAME, columns, null, null,
-	 * null, null, null);
-	 * 
-	 * return cursor; }
-	 */
+	public Cursor routeFixesSpeed(int routeNo) {
+		SQLiteDatabase db = getReadableDatabase();
 
+		return db.query(TABLE_NAME, new String[] { LATITUDE, LONGITUDE, ACCURACY, SPEED, COLUMN_ID }, ROUTE_NUMBER + " = "
+				+ routeNo, null, null, null, COLUMN_ID);
+
+	}
+
+	public void rejectRoute(int routeNo) {
+		SQLiteDatabase db = getReadableDatabase();
+		db.delete(TABLE_NAME, ROUTE_NUMBER + "=" + routeNo, null);
+	}
+	
 }

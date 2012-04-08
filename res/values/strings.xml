@@ -23,5 +23,10 @@
     <string name="route">Route </string>
     <string name="select_routes_to_display">Routes</string>
     <string name="capturing_route">Capturing Route</string>
+    <string name="comma">,</string>
+    <string name="capturingroute">capturingRoute</string>
+    
 
+
+    
 </resources>

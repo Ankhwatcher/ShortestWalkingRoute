@@ -23,7 +23,7 @@ public class RouteOverlay extends Overlay {
 	}
 
 	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-		//Projection projection = mapView.getProjection();
+		// Projection projection = mapView.getProjection();
 		super.draw(canvas, mapView, shadow);
 		if (shadow == false) {
 
@@ -56,8 +56,6 @@ public class RouteOverlay extends Overlay {
 			// draw track
 			canvas.drawPath(path, paint);
 		}
-
-		
 
 	}
 

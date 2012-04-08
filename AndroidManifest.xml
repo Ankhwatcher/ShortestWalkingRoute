@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ie.appz.shortestwalkingroute"
-    android:versionCode="4"
-    android:versionName="0.0.6" >
+    android:versionCode="8"
+    android:versionName="0.0.9" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -25,9 +25,9 @@
         </activity>
         <activity
             android:name=".CaptureRouteActivity"
+            android:hardwareAccelerated="false"
             android:label="@string/fragment0"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.RECORD" />
 
@@ -43,6 +43,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".gps.LocationService"
+            android:enabled="true" />
+
+        <provider
+            android:grantUriPermissions="false"
+            android:name="ie.appz.shortestwalkingroute.sqlite.FixProvider"
+            android:authorities="ie.appz.shortestwalkingroute.sqlite.FixProvider" />
 
         <uses-library android:name="com.google.android.maps" />
     </application>
