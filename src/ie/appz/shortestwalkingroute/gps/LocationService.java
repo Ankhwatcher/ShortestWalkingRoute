@@ -28,7 +28,7 @@ public class LocationService extends Service {
 		mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		networkListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
-				if (lastLocation == null || (location.getTime() - lastLocation.getTime()) > 3000) {
+				if (lastLocation == null || (location.getTime() - lastLocation.getTime()) > 10000) {
 					addRow(location);
 				}
 			}
@@ -66,8 +66,8 @@ public class LocationService extends Service {
 		 * Register the listener with the Location Manager to receive location
 		 * updates
 		 */
-		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 2, networkListener);
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, gpsListener);
+		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15000, 2, networkListener);
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 2, gpsListener);
 		/*
 		 * The two integers in this request are the time (ms) and distance (m)
 		 * intervals of notifications respectively.

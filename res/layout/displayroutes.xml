@@ -11,19 +11,24 @@
         android:paddingBottom="1dip"
         android:paddingTop="1dip" >
 
-        <ImageView
-            android:id="@+id/activityIcon"
-            android:layout_width="wrap_content"
+        <ImageButton
+            android:id="@+id/sourceSwitch"
+            android:layout_width="48dip"
             android:layout_height="48dip"
             android:layout_alignParentLeft="true"
             android:contentDescription="@string/ic_menu_display_description"
+            android:onClick="switchSource"
             android:src="@drawable/ic_menu_display" />
+
+        <View
+            android:layout_width="4dip"
+            android:layout_height="48dip" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/activityIcon"
+            android:layout_toRightOf="@+id/sourceSwitch"
             android:text="@string/fragment1"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -55,7 +60,7 @@
         android:id="@+id/route_map"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:apiKey="@string/release_maps_key"
+        android:apiKey="@string/debug_maps_key"
         android:clickable="true" />
 
 </LinearLayout>

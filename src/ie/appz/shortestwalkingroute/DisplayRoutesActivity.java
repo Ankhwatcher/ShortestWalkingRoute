@@ -21,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -31,9 +32,30 @@ import com.google.android.maps.OverlayItem;
 public class DisplayRoutesActivity extends MapActivity {
 
 	public static final String PREFS_NAME = "ROUTE_PREFS";
+	public static final String MAP_SATELLITE = "mapSatellite";
 
 	private static final String SELECTED_ROUTES = "selectedRoutes";
 	FixOpenHelper fixHelper = new FixOpenHelper(this);
+
+	public void switchSource(View switchSource) {
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences.Editor editor = settings.edit();
+		Boolean mapSatellite = !settings.getBoolean(MAP_SATELLITE, false);
+
+		MapView mapView = (MapView) findViewById(R.id.route_map);
+		mapView.setSatellite(mapSatellite);
+
+		ImageButton sourceSwitch = (ImageButton) findViewById(R.id.sourceSwitch);
+		if (mapSatellite) {
+			sourceSwitch.setImageResource(R.drawable.ic_menu_display_satellite);
+		} else {
+			sourceSwitch.setImageResource(R.drawable.ic_menu_display);
+		}
+
+		editor.putBoolean(MAP_SATELLITE, mapSatellite);
+		editor.commit();
+
+	}
 
 	protected OnClickListener changeRoute = new OnClickListener() {
 
@@ -179,10 +201,18 @@ public class DisplayRoutesActivity extends MapActivity {
 		super.onResume();
 
 		MapView mapView = (MapView) findViewById(R.id.route_map);
-
+		ImageButton sourceSwitch = (ImageButton) findViewById(R.id.sourceSwitch);
+		
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		String selectedRoutes = settings.getString(SELECTED_ROUTES, "");
-
+		Boolean mapSatellite = settings.getBoolean(MAP_SATELLITE, false);
+		
+		if(mapSatellite)
+		{
+			sourceSwitch.setImageResource(R.drawable.ic_menu_display_satellite);
+			mapView.setSatellite(mapSatellite);
+		}
+		
 		for (int i = 0; i < selectedRoutes.length(); i++) {
 
 			int routeColor = randomColorGenerator(i);
