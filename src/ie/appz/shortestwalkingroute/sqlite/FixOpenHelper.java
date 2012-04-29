@@ -2,6 +2,7 @@ package ie.appz.shortestwalkingroute.sqlite;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
@@ -59,17 +60,18 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 	public int highestRoute() {
 		SQLiteDatabase db = getReadableDatabase();
 		int highRoute = 0;
-		try {
+		/*
+		 * try {
+		 * 
+		 * Cursor results = db.rawQuery("SELECT MAX(" + ROUTE_NUMBER + ") FROM "
+		 * + TABLE_NAME, null); if (results.moveToFirst()) { highRoute =
+		 * results.getInt(0); } results.close(); } catch (Exception e) {
+		 * Log.e(FixOpenHelper.class.getName(), "Unable to get highestRoute.",
+		 * e); }
+		 */
 
-			Cursor results = db.rawQuery("SELECT MAX(" + ROUTE_NUMBER + ") FROM " + TABLE_NAME, null);
-			if (results.moveToFirst()) {
-				highRoute = results.getInt(0);
-			}
-			results.close();
-		} catch (Exception e) {
-			Log.e(FixOpenHelper.class.getName(), "Unable to get highestRoute.", e);
-		}
-
+		highRoute = (int) DatabaseUtils.longForQuery(db, "SELECT MAX(" + ROUTE_NUMBER + ") FROM " + TABLE_NAME, null);
+		db.close();
 		return highRoute;
 
 	}
@@ -77,19 +79,33 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 	public long totalRouteTime(int routeNo) {
 		long diffTime = 0;
 		SQLiteDatabase db = getReadableDatabase();
-		try {
-			Cursor results = db.rawQuery("SELECT MAX(" + TIME + ") AS \"MAXTIME\", MIN(" + TIME
-					+ ") AS \"MINTIME\" FROM " + TABLE_NAME + " WHERE " + ROUTE_NUMBER + " = " + routeNo, null);
-			if (results.moveToFirst()) {
-				diffTime = results.getLong(0) - results.getLong(1);
-			}
-			results.close();
-		} catch (Exception e) {
-			Log.e(FixOpenHelper.class.getName(), "Unable to get diffTime for Route " + routeNo + ".", e);
-		}
+		/*
+		 * try { Cursor results = db.rawQuery("SELECT MAX(" + TIME +
+		 * ") AS \"MAXTIME\", MIN(" + TIME + ") AS \"MINTIME\" FROM " +
+		 * TABLE_NAME + " WHERE " + ROUTE_NUMBER + " = " + routeNo, null); if
+		 * (results.moveToFirst()) { diffTime = results.getLong(0) -
+		 * results.getLong(1); } results.close(); } catch (Exception e) {
+		 * Log.e(FixOpenHelper.class.getName(),
+		 * "Unable to get diffTime for Route " + routeNo + ".", e); }
+		 */
+		diffTime = DatabaseUtils.longForQuery(db, "SELECT (MAX(" + TIME + ") - MIN(" + TIME
+				+ ")) FROM " + TABLE_NAME + " WHERE " + ROUTE_NUMBER + " = " + routeNo, null);
+		
+		db.close();
 		return diffTime;
 	}
 
+	public float averageSpeed(int routeNo)
+	{
+		 
+		SQLiteDatabase db = getReadableDatabase();
+		
+		String astring =  DatabaseUtils.stringForQuery(db, "SELECT AVG(" + SPEED + ") FROM " + TABLE_NAME + " WHERE " + ROUTE_NUMBER + " = " + routeNo, null);
+		
+		float avgSpeed = new Float(astring);
+		return avgSpeed;
+	}
+	
 	public float minimumAccuracy(int routeNo) {
 		float minAcc = 0;
 		SQLiteDatabase db = getReadableDatabase();
@@ -112,18 +128,21 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 				+ routeNo, null, null, null, COLUMN_ID);
 
 	}
-	
+
 	public Cursor routeFixesSpeed(int routeNo) {
 		SQLiteDatabase db = getReadableDatabase();
 
-		return db.query(TABLE_NAME, new String[] { LATITUDE, LONGITUDE, ACCURACY, SPEED, COLUMN_ID }, ROUTE_NUMBER + " = "
-				+ routeNo, null, null, null, COLUMN_ID);
+		return db.query(TABLE_NAME, new String[] { LATITUDE, LONGITUDE, ACCURACY, SPEED, COLUMN_ID }, ROUTE_NUMBER
+				+ " = " + routeNo, null, null, null, COLUMN_ID);
 
 	}
 
 	public void rejectRoute(int routeNo) {
 		SQLiteDatabase db = getReadableDatabase();
+		Log.i(FixOpenHelper.class.getName(), "Deleting route number " + routeNo);
 		db.delete(TABLE_NAME, ROUTE_NUMBER + "=" + routeNo, null);
+
+		db.close();
 	}
-	
+
 }

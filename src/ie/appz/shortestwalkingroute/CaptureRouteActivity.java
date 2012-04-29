@@ -138,7 +138,8 @@ public class CaptureRouteActivity extends FragmentActivity {
 
 	private void Notification(CharSequence contentText) {
 		Intent notificationIntent = new Intent(this, CaptureRouteActivity.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Builder nCompatBuilder = new NotificationCompat.Builder(this);
 		nCompatBuilder.setAutoCancel(false);

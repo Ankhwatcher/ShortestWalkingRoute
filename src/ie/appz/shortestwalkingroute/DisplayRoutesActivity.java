@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.Gravity;
@@ -202,17 +203,16 @@ public class DisplayRoutesActivity extends MapActivity {
 
 		MapView mapView = (MapView) findViewById(R.id.route_map);
 		ImageButton sourceSwitch = (ImageButton) findViewById(R.id.sourceSwitch);
-		
+
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		String selectedRoutes = settings.getString(SELECTED_ROUTES, "");
 		Boolean mapSatellite = settings.getBoolean(MAP_SATELLITE, false);
-		
-		if(mapSatellite)
-		{
+
+		if (mapSatellite) {
 			sourceSwitch.setImageResource(R.drawable.ic_menu_display_satellite);
 			mapView.setSatellite(mapSatellite);
 		}
-		
+
 		for (int i = 0; i < selectedRoutes.length(); i++) {
 
 			int routeColor = randomColorGenerator(i);
@@ -230,6 +230,9 @@ public class DisplayRoutesActivity extends MapActivity {
 	protected void drawRoute(MapView mapView, int routeNo, int routeColor, Boolean isChecked) {
 		routeNo++;
 
+		Location fixLocation = new Location("Cursor"), lastLocation = new Location("Cursor");
+		float totalDistance = 0, spreadDistance = 0;
+		Boolean firstRun = true;
 		GeoPoint fixGeo = null;
 		ShapeDrawable shapedraw = new ShapeDrawable(new OvalShape());
 		shapedraw.getPaint().setColor(routeColor);
@@ -238,42 +241,67 @@ public class DisplayRoutesActivity extends MapActivity {
 		RouteItemizedOverlay tagOverlay = new RouteItemizedOverlay(shapedraw, this);
 
 		ArrayList<GeoPoint> routePoints = new ArrayList<GeoPoint>();
-		int itemSpreader = 0;
+		// int itemSpreader = 0;
 		long startTime, fixTime, diffTime;
 
 		Time totalTime = new Time();
 		Time aTime = new Time();
 		totalTime.set(fixHelper.totalRouteTime(routeNo));
+		float averageSpeed = fixHelper.averageSpeed(routeNo);
 
 		Cursor cursor = fixHelper.routeFixesTime(routeNo);
 
 		if (cursor.moveToFirst()) {
 			startTime = cursor.getLong(3);
 			do {
+				fixLocation.reset();
+				fixLocation.setLatitude(cursor.getDouble(0));
+				fixLocation.setLongitude(cursor.getDouble(1));
+				fixLocation.setAccuracy(cursor.getFloat(2));
+				float dt = fixLocation.distanceTo(lastLocation);
 
-				fixGeo = new GeoPoint((int) (cursor.getDouble(0) * 1E6), (int) (cursor.getDouble(1) * 1E6));
+				if (firstRun || dt > lastLocation.getAccuracy() * 3) {
+					if (!firstRun) {
+						totalDistance = totalDistance + dt;
+						spreadDistance = spreadDistance + dt;
+					}
 
-				routePoints.add(fixGeo);
-				itemSpreader++;
-				fixTime = cursor.getLong(3);
-				diffTime = fixTime - startTime;
-				if ((itemSpreader % 25) == 0) {
+					fixGeo = new GeoPoint((int) (fixLocation.getLatitude() * 1E6),
+							(int) (fixLocation.getLongitude() * 1E6));
+					routePoints.add(fixGeo);
+
 					fixTime = cursor.getLong(3);
 					diffTime = fixTime - startTime;
-					aTime = new Time();
-					aTime.set(diffTime);
-					tagOverlay.addOverlay(new OverlayItem(fixGeo, "Route " + routeNo + "\nTotal Time "
-							+ String.format("%02d", totalTime.toMillis(true) / (1000 * 60 * 60)) + ":"
-							+ totalTime.format("%M:%S"), "Point Time "
-							+ String.format("%02d", aTime.toMillis(true) / (1000 * 60 * 60)) + ":"
-							+ aTime.format("%M:%S") + "\nAccuracy (m) " + cursor.getString(2)));
+					/*
+					 * itemSpreader++; if ((itemSpreader % 10) == 0) {
+					 */
+					if (spreadDistance > 300) {
+						spreadDistance = 0;
+						fixTime = cursor.getLong(3);
+						diffTime = fixTime - startTime;
+						aTime = new Time();
+						aTime.set(diffTime);
+
+						tagOverlay.addOverlay(new OverlayItem(fixGeo, "Route " + routeNo, "Total Time "
+								+ String.format("%02d", totalTime.toMillis(true) / (1000 * 60 * 60)) + ":"
+								+ totalTime.format("%M:%S") + "\nAverage Speed "
+								+ Math.floor((averageSpeed * 60 * 60) / 1000 * 100) / 100 + " km/h" + "\nPoint Time "
+								+ String.format("%02d", aTime.toMillis(true) / (1000 * 60 * 60)) + ":"
+								+ aTime.format("%M:%S") + "\nDistance Travelled " + distanceString(totalDistance)));
+					}
+					lastLocation.reset();
+					lastLocation.set(fixLocation);
+					firstRun = false;
 				}
 
 			} while (cursor.moveToNext());
 			cursor.close();
+
 			tagOverlay.addOverlay(new OverlayItem(fixGeo, "Route " + routeNo + "\nTotal Time "
 					+ String.format("%02d", totalTime.toMillis(true) / (1000 * 60 * 60)) + ":"
-					+ totalTime.format("%M:%S"), "Final Point"));
+					+ totalTime.format("%M:%S"), "Final Point" + "\nAverage Speed "
+					+ Math.floor((averageSpeed * 60 * 60) / 1000 * 100) / 100 + " km/h" + "\nTotal Distance "
+					+ distanceString(totalDistance)));
 			mapView.getOverlays().add(new RouteOverlay(routePoints, routeColor));
 
 			mapView.getOverlays().add(tagOverlay);
@@ -293,6 +321,16 @@ public class DisplayRoutesActivity extends MapActivity {
 		if (fixHelper != null) {
 			fixHelper.close();
 		}
+	}
+
+	private String distanceString(float totalDistance) {
+		String distanceString;
+		if (totalDistance > 1000) {
+			distanceString = Math.floor((totalDistance / 1000) * 100) / 100 + " km";
+		} else {
+			distanceString = (int) Math.floor(totalDistance) + " m";
+		}
+		return distanceString;
 	}
 
 	public int randomColorGenerator(int run) {

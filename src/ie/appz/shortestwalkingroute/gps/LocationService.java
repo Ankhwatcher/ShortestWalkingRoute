@@ -6,12 +6,14 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.*;
 
 public class LocationService extends Service {
 
@@ -40,6 +42,7 @@ public class LocationService extends Service {
 			}
 
 			public void onProviderDisabled(String provider) {
+				
 			}
 		};
 		gpsListener = new LocationListener() {
@@ -60,18 +63,31 @@ public class LocationService extends Service {
 	}
 
 	@Override
-	public void onStart(Intent intent, int startid) {
-		mRouteNo = intent.getIntExtra("HIGHESTROUTE", 1);
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		if (intent != null) {
+			mRouteNo = intent.getIntExtra("HIGHESTROUTE", 1);
+			SharedPreferences settings = getSharedPreferences(ie.appz.shortestwalkingroute.CaptureRouteActivity.PREFS_NAME, 0);
+			SharedPreferences.Editor editor = settings.edit();
+			editor.putInt("HIGHESTROUTE", mRouteNo);
+			editor.commit();
+		}
+		else
+		{
+			SharedPreferences settings = getSharedPreferences(ie.appz.shortestwalkingroute.CaptureRouteActivity.PREFS_NAME, 0);
+			mRouteNo = settings.getInt("HIGHESTROUTE", 1);
+		}
 		/*
 		 * Register the listener with the Location Manager to receive location
 		 * updates
 		 */
-		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15000, 2, networkListener);
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 2, gpsListener);
+		Log.d(LocationService.class.getName(), "Starting capture of GPS data for route " + mRouteNo);
+		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 5, networkListener);
+		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, gpsListener);
 		/*
 		 * The two integers in this request are the time (ms) and distance (m)
 		 * intervals of notifications respectively.
 		 */
+		return START_STICKY;
 	}
 
 	@Override
@@ -85,6 +101,8 @@ public class LocationService extends Service {
 		 * This will reject any GPS fix with very poor accuracy
 		 */
 		if (location.getAccuracy() < 100 && location.getAccuracy() < 2 * oldAccuracy) {
+			Log.d(LocationService.class.getName(), "Adding fix to " + FixOpenHelper.TABLE_NAME + " in route number "
+					+ mRouteNo + ". Fix provided by " + location.getProvider());
 			mFixOpenHelper.addFix(mRouteNo, location);
 			lastLocation = location;
 			oldAccuracy = (oldAccuracy + location.getAccuracy()) / 2;
@@ -92,8 +110,9 @@ public class LocationService extends Service {
 
 			ContentResolver contentResolver = this.getContentResolver();
 			contentResolver.notifyChange(baseUri, null);
-
-		}
+		} else
+			Log.d(LocationService.class.getName(), "Rejected fix for " + FixOpenHelper.TABLE_NAME + " in route number "
+					+ mRouteNo + " because accuracy is " + location.getAccuracy()+ ". Fix provided by " + location.getProvider());
 	}
 
 	@Override
@@ -105,5 +124,8 @@ public class LocationService extends Service {
 		if (mFixOpenHelper != null) {
 			mFixOpenHelper.close();
 		}
+		
+	
 	}
+	
 }
