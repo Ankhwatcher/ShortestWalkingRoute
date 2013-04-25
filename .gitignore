@@ -9,8 +9,12 @@
 proguard.cfg
 project.properties
 lint.xml
-apikeys.xml
+res/values/apikeys.xml
 bin/
 gen/
 libs/
 .dropbox
+.euml2
+.settings/
+.umlproject
+

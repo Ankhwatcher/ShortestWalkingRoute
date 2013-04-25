@@ -11,7 +11,12 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.TableRow;
 
+/**
+ * @author  Rory
+ */
 public class HomeActivity extends Activity {
+	/**
+	 */
 	private FixOpenHelper fixHelper = new FixOpenHelper(this);
 	Context HAContext = this;
 	private OnClickListener fragmentLaunch0 = new OnClickListener() {

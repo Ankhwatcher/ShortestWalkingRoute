@@ -2,10 +2,13 @@ package ie.appz.shortestwalkingroute;
 
 import ie.appz.shortestwalkingroute.gps.LocationService;
 import ie.appz.shortestwalkingroute.sqlite.FixOpenHelper;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,20 +16,23 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+/**
+ * @author Rory Glynn
+ */
 public class CaptureRouteActivity extends FragmentActivity {
 	public static final String PREFS_NAME = "ROUTE_PREFS";
 	private int highestRoute = 0;
 	private static final int CAPTURING_ROUTE = 1;
-
 	private static NotificationManager notificationManager;
 	private CaptureRouteFragment captureRouteFragment;
 	Location lastLocation = null;
@@ -36,6 +42,54 @@ public class CaptureRouteActivity extends FragmentActivity {
 	/* Layout Items */
 	private ProgressBar captureProgress;
 	private Button captureButton = null;
+
+	public class targetSingleChoiceListener implements
+			DialogInterface.OnClickListener {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+
+		}
+	}
+
+	private class DialogButtonClickHandler implements
+			DialogInterface.OnClickListener {
+		public void onClick(DialogInterface dialog, int clicked) {
+			switch (clicked) {
+			case DialogInterface.BUTTON_POSITIVE:
+
+				break;
+			}
+		}
+	};
+
+	protected Dialog onCreateDialog(int id) {
+
+		// int highestRoute = fixHelper.highestRoute();
+
+		// List<CharSequence> optionList = new ArrayList<CharSequence>();
+		Cursor targetCursor = fixHelper.getTargetNames();
+		/*
+		 * if (targetCursor.moveToFirst()) { do {
+		 * optionList.add(targetCursor.getString(0)); } while
+		 * (targetCursor.moveToNext()); targetCursor.close();
+		 */
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Select Target Location");
+
+		builder.setSingleChoiceItems(targetCursor, -1,
+				FixOpenHelper.TARGET_NAME, new targetSingleChoiceListener());
+		builder.setPositiveButton("OK", new DialogButtonClickHandler())
+				.create();
+		builder.setNegativeButton("New Target", new DialogButtonClickHandler())
+				.create();
+		Dialog dialog = builder.create();
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		WindowManager.LayoutParams WMLP = dialog.getWindow().getAttributes();
+		dialog.getWindow().setAttributes(WMLP);
+		WMLP.gravity = Gravity.TOP | Gravity.RIGHT;
+		return dialog;
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,10 +112,11 @@ public class CaptureRouteActivity extends FragmentActivity {
 			captureButton.setOnClickListener(startCapture);
 		}
 
-		captureRouteFragment = (CaptureRouteFragment) getSupportFragmentManager().findFragmentById(
-				R.id.captureRouteFragment);
+		captureRouteFragment = (CaptureRouteFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.captureRouteFragment);
 		captureRouteFragment.getListView().setScrollbarFadingEnabled(false);
-		captureRouteFragment.getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+		captureRouteFragment.getListView().setTranscriptMode(
+				ListView.TRANSCRIPT_MODE_NORMAL);
 
 	}
 
@@ -82,14 +137,17 @@ public class CaptureRouteActivity extends FragmentActivity {
 				editor.putBoolean(getString(R.string.capturingroute), true);
 				editor.commit();
 
-				Intent i = new Intent(CaptureRouteActivity.this, ie.appz.shortestwalkingroute.gps.LocationService.class);
+				Intent i = new Intent(CaptureRouteActivity.this,
+						ie.appz.shortestwalkingroute.gps.LocationService.class);
 				i.putExtra("HIGHESTROUTE", highestRoute);
 				startService(i);
 
-				CharSequence text = "Now Capturing Route Number: " + highestRoute;
+				CharSequence text = "Now Capturing Route Number: "
+						+ highestRoute;
 				int duration = Toast.LENGTH_SHORT;
 
-				Toast toast = Toast.makeText(CaptureRouteActivity.this, text, duration);
+				Toast toast = Toast.makeText(CaptureRouteActivity.this, text,
+						duration);
 				toast.show();
 
 			}
@@ -130,6 +188,13 @@ public class CaptureRouteActivity extends FragmentActivity {
 			Cursor c = fixHelper.routeFixesTime(highestRoute);
 			if (c.getCount() == 1) {
 				fixHelper.rejectRoute(highestRoute);
+			} else {
+				String selectedRoutes = settings.getString(
+						DisplayRoutesActivity.SELECTED_ROUTES, "");
+				selectedRoutes = selectedRoutes + (char) (highestRoute - 1);
+				editor.putString(DisplayRoutesActivity.SELECTED_ROUTES,
+						selectedRoutes);
+				editor.commit();
 			}
 			c.close();
 		}
@@ -139,9 +204,11 @@ public class CaptureRouteActivity extends FragmentActivity {
 	private void Notification(CharSequence contentText) {
 		Intent notificationIntent = new Intent(this, CaptureRouteActivity.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Builder nCompatBuilder = new NotificationCompat.Builder(this);
+		NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(
+				this);
 		nCompatBuilder.setAutoCancel(false);
 		nCompatBuilder.setOngoing(true);
 		nCompatBuilder.setContentTitle(getString(R.string.app_name));

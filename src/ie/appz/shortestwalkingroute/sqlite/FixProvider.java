@@ -13,11 +13,16 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+/**
+ * @author  Rory
+ */
 public class FixProvider extends ContentProvider {
 	public static final String PROVIDER_NAME = "ie.appz.shortestwalkingroute.sqlite.FixProvider";
 	public static final Uri CONTENT_URI = Uri.parse("content://" + PROVIDER_NAME);
 	public static final String ROUTE = "ROUTE";
 	SQLiteDatabase fixDB;
+	/**
+	 */
 	FixOpenHelper fixOpenHelper ;
 	private static final int ALL = 1;
 	private static final int ONEROUTE = 2;
@@ -35,14 +40,14 @@ public class FixProvider extends ContentProvider {
 		int rowsAffected = 0;
 		switch (uriType) {
 		case ALL:
-			rowsAffected = fixDB.delete(FixOpenHelper.TABLE_NAME, selection, selectionArgs);
+			rowsAffected = fixDB.delete(FixOpenHelper.FIX_TABLE_NAME, selection, selectionArgs);
 			break;
 		case ONEROUTE:
 			String routeNo = uri.getLastPathSegment();
 			if (TextUtils.isEmpty(selection)) {
-				rowsAffected = fixDB.delete(FixOpenHelper.TABLE_NAME, FixOpenHelper.ROUTE_NUMBER + "=" + routeNo, null);
+				rowsAffected = fixDB.delete(FixOpenHelper.FIX_TABLE_NAME, FixOpenHelper.ROUTE_NUMBER + "=" + routeNo, null);
 			} else {
-				rowsAffected = fixDB.delete(FixOpenHelper.TABLE_NAME, selection + " and " + FixOpenHelper.ROUTE_NUMBER
+				rowsAffected = fixDB.delete(FixOpenHelper.FIX_TABLE_NAME, selection + " and " + FixOpenHelper.ROUTE_NUMBER
 						+ "=" + routeNo, selectionArgs);
 			}
 			break;
@@ -70,7 +75,7 @@ public class FixProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		// ---add a new fix---
-		long rowID = fixDB.insert(FixOpenHelper.TABLE_NAME, "", values);
+		long rowID = fixDB.insert(FixOpenHelper.FIX_TABLE_NAME, "", values);
 
 		// ---if added successfully---
 		if (rowID > 0) {
@@ -92,7 +97,7 @@ public class FixProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder sqlBuilder = new SQLiteQueryBuilder();
-		sqlBuilder.setTables(FixOpenHelper.TABLE_NAME);
+		sqlBuilder.setTables(FixOpenHelper.FIX_TABLE_NAME);
 		if (uriMatcher.match(uri) == ONEROUTE)
 		{
 			sqlBuilder.appendWhere(FixOpenHelper.ROUTE_NUMBER + " == " + uri.getPathSegments().get(1));

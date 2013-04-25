@@ -17,11 +17,16 @@ import android.widget.ListView;
 
 /* Important: http://mobile.tutsplus.com/tutorials/android/android-sdk_loading-data_cursorloader/ */
 
+/**
+ * @author Rory
+ */
 public class CaptureRouteFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final int FIX_LIST_LOADER = 0x01;
 	public static final String REQUESTED_ROUTE = "REQUESTED_ROUTE";
 	private SimpleCursorAdapter adapter;
 	Context context;
+	/**
+	 */
 	FixOpenHelper fixOpenHelper;
 
 	@Override
@@ -41,8 +46,7 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
 		super.onCreate(savedInstanceState);
 		fixOpenHelper = new FixOpenHelper(getActivity().getApplicationContext());
 
-		String[] uiBindFrom = { FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE, FixOpenHelper.ACCURACY,
-				FixOpenHelper.SPEED };
+		String[] uiBindFrom = { FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE, FixOpenHelper.ACCURACY, FixOpenHelper.SPEED };
 		int[] uiBindTo = { R.id.latitudeText, R.id.longitudeText, R.id.accuracyText, R.id.speedText };
 		int routeNo = fixOpenHelper.highestRoute();
 
@@ -50,8 +54,7 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
 		requestBundle.putInt(REQUESTED_ROUTE, routeNo);
 
 		// Cursor cursor = fixOpenHelper.routeFixesSpeed(routeNo);
-		adapter = new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.captureroute_row, null,
-				uiBindFrom, uiBindTo, 0);
+		adapter = new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.captureroute_row, null, uiBindFrom, uiBindTo, 0);
 
 		setListAdapter(adapter);
 
@@ -62,8 +65,7 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		
-		
+
 	}
 
 	public boolean onQueryChange(int newRouteNo) {
@@ -84,22 +86,21 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
 
 		Uri baseUri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + routeNo);
 
-		String[] projection = { FixOpenHelper.COLUMN_ID, FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE,
-				FixOpenHelper.ACCURACY, FixOpenHelper.SPEED };
+		String[] projection = { FixOpenHelper.COLUMN_ID, FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE, FixOpenHelper.ACCURACY, FixOpenHelper.SPEED };
 
 		CursorLoader cursorLoader = new CursorLoader(getActivity(), baseUri, projection, null, null, null);
 
-		
-		
 		return cursorLoader;
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		adapter.swapCursor(cursor);
-		
-		/*ListView listView = CaptureRouteFragment.this.getListView();
-		listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);*/
+
+		/*
+		 * ListView listView = CaptureRouteFragment.this.getListView();
+		 * listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+		 */
 	}
 
 	@Override

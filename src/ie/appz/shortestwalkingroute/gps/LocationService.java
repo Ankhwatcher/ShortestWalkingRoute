@@ -15,14 +15,20 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.*;
 
+/**
+ * @author Rory
+ */
 public class LocationService extends Service {
 
 	int mRouteNo;
+	/**
+	 */
 	FixOpenHelper mFixOpenHelper;
 	Location lastLocation;
 	public static float oldAccuracy = 12;
 	LocationManager mLocationManager;
-	LocationListener networkListener, gpsListener;
+	LocationListener networkListener;
+	LocationListener gpsListener;
 
 	@Override
 	public void onCreate() {
@@ -42,7 +48,7 @@ public class LocationService extends Service {
 			}
 
 			public void onProviderDisabled(String provider) {
-				
+
 			}
 		};
 		gpsListener = new LocationListener() {
@@ -70,9 +76,7 @@ public class LocationService extends Service {
 			SharedPreferences.Editor editor = settings.edit();
 			editor.putInt("HIGHESTROUTE", mRouteNo);
 			editor.commit();
-		}
-		else
-		{
+		} else {
 			SharedPreferences settings = getSharedPreferences(ie.appz.shortestwalkingroute.CaptureRouteActivity.PREFS_NAME, 0);
 			mRouteNo = settings.getInt("HIGHESTROUTE", 1);
 		}
@@ -101,8 +105,8 @@ public class LocationService extends Service {
 		 * This will reject any GPS fix with very poor accuracy
 		 */
 		if (location.getAccuracy() < 100 && location.getAccuracy() < 2 * oldAccuracy) {
-			Log.d(LocationService.class.getName(), "Adding fix to " + FixOpenHelper.TABLE_NAME + " in route number "
-					+ mRouteNo + ". Fix provided by " + location.getProvider());
+			Log.d(LocationService.class.getName(), "Adding fix to " + FixOpenHelper.FIX_TABLE_NAME + " in route number " + mRouteNo + ". Fix provided by "
+					+ location.getProvider());
 			mFixOpenHelper.addFix(mRouteNo, location);
 			lastLocation = location;
 			oldAccuracy = (oldAccuracy + location.getAccuracy()) / 2;
@@ -111,8 +115,8 @@ public class LocationService extends Service {
 			ContentResolver contentResolver = this.getContentResolver();
 			contentResolver.notifyChange(baseUri, null);
 		} else
-			Log.d(LocationService.class.getName(), "Rejected fix for " + FixOpenHelper.TABLE_NAME + " in route number "
-					+ mRouteNo + " because accuracy is " + location.getAccuracy()+ ". Fix provided by " + location.getProvider());
+			Log.d(LocationService.class.getName(), "Rejected fix for " + FixOpenHelper.FIX_TABLE_NAME + " in route number " + mRouteNo
+					+ " because accuracy is " + location.getAccuracy() + ". Fix provided by " + location.getProvider());
 	}
 
 	@Override
@@ -124,8 +128,7 @@ public class LocationService extends Service {
 		if (mFixOpenHelper != null) {
 			mFixOpenHelper.close();
 		}
-		
-	
+
 	}
-	
+
 }
