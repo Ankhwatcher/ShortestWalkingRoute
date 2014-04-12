@@ -7,43 +7,38 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/ic_menu_capture_description"
         android:orientation="horizontal"
         android:paddingBottom="1dip"
         android:paddingTop="1dip" >
 
-        <ImageView
-            android:id="@+id/activityIcon"
-            android:layout_width="wrap_content"
+        <ImageButton
+            android:id="@+id/sourceSwitch"
+            android:layout_width="48dip"
             android:layout_height="48dip"
             android:layout_alignParentLeft="true"
-            android:contentDescription="@string/ic_menu_capture_description"
-            android:src="@drawable/ic_menu_capture" />
+            android:contentDescription="@string/ic_menu_display_description"
+            android:onClick="switchSource"
+            android:src="@drawable/ic_menu_display" />
+
+        <View
+            android:layout_width="4dip"
+            android:layout_height="48dip" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/activityIcon"
-            android:text="@string/fragment0"
+            android:layout_toRightOf="@+id/sourceSwitch"
+            android:text="@string/fragment1"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
+
         <ProgressBar
-            android:id="@+id/capturelProgress"
+            android:id="@+id/captureProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/capturelButton"
             android:visibility="invisible" />
 
-        <Button
-            android:id="@+id/capturelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:clickable="true"
-            android:text="@string/start" />
     </RelativeLayout>
 
     <View
@@ -51,14 +46,12 @@
         android:layout_height="2dip"
         android:background="@color/ics_cyan" />
 
-    <fragment
+    <com.google.android.maps.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/captureRouteFragment"
-        android:name="ie.appz.shortestwalkingroute.CaptureRouteFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <!-- Preview: layout=@layout/captureroute_row -->
-    </fragment>
+        android:id="@+id/route_map"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:apiKey="@string/debug_maps_key"
+        android:clickable="true" />
 
 </LinearLayout>

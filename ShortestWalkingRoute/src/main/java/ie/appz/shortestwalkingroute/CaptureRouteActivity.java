@@ -217,6 +217,7 @@ public class CaptureRouteActivity extends FragmentActivity {
 
 		nCompatBuilder.setSmallIcon(R.drawable.ic_menu_capture);
 
+		@SuppressWarnings("deprecation")
 		Notification notification = nCompatBuilder.getNotification();
 
 		notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

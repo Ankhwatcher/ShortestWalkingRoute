@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="1dip"
+        android:paddingTop="1dip" >
+
+        <ImageButton
+            android:id="@+id/sourceSwitch"
+            android:layout_width="48dip"
+            android:layout_height="48dip"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="@string/ic_menu_display_description"
+            android:src="@drawable/ic_menu_display" />
+
+        <View
+            android:layout_width="4dip"
+            android:layout_height="48dip" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/sourceSwitch"
+            android:text="@string/fragment1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <ProgressBar
+            android:id="@+id/captureProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/routeButton"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/routeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:clickable="true"
+            android:text="@string/route" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:background="@color/ics_cyan" />
+
+    <fragment
+        android:id="@+id/route_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true" />
+
+</LinearLayout>
