@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:swr="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ie.appz.shortestwalkingroute.CaptureRouteActivity">
+
+    <item
+        android:id="@+id/action_start"
+        android:icon="@android:drawable/ic_media_play"
+        android:orderInCategory="100"
+        android:title="@string/start"
+        swr:showAsAction="always" />
+</menu>

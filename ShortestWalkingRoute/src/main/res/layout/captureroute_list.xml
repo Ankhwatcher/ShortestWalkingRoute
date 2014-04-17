@@ -4,52 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/ic_menu_capture_description"
-        android:orientation="horizontal"
-        android:paddingBottom="1dip"
-        android:paddingTop="1dip" >
 
-        <ImageView
-            android:id="@+id/activityIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="48dip"
-            android:layout_alignParentLeft="true"
-            android:contentDescription="@string/ic_menu_capture_description"
-            android:src="@drawable/ic_menu_capture" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/activityIcon"
-            android:text="@string/fragment0"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <ProgressBar
-            android:id="@+id/capturelProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/capturelButton"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/capturelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:clickable="true"
-            android:text="@string/start" />
-    </RelativeLayout>
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="2dip"
-        android:background="@color/ics_cyan" />
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"

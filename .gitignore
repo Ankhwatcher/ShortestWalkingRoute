@@ -6,6 +6,7 @@
 *.project
 *.ini
 *.svg
+*.iml
 proguard.cfg
 project.properties
 lint.xml
@@ -13,8 +14,7 @@ res/values/apikeys.xml
 bin/
 gen/
 libs/
-.dropbox
-.euml2
 .settings/
-.umlproject
-
+.idea
+build/
+/local.properties
