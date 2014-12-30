@@ -17,6 +17,7 @@ bin/
 gen/
 libs/
 .settings/
-.idea
+.gradle/
+.idea/
 build/
 /local.properties
