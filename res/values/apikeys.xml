@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="release_maps_key">Place Maps API Keys Here</string>
-    <string name="debug_maps_key">More Information: http://j.mp/zUeL1M</string>
-
-</resources>

@@ -9,4 +9,7 @@
     <color name="solid_green">#FF00FF00</color>
     <color name="ics_cyan">#FF30B2E2</color>
 
+
+    <color name="primary">#ff006e00</color>
+    <color name="primary_dark">#ff004400</color>
 </resources>

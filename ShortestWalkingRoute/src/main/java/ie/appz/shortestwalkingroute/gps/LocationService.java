@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
@@ -21,7 +22,10 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import ie.appz.shortestwalkingroute.BuildConfig;
 import ie.appz.shortestwalkingroute.CaptureRouteActivity;
+import ie.appz.shortestwalkingroute.Constants;
+import ie.appz.shortestwalkingroute.DisplayRoutesActivity;
 import ie.appz.shortestwalkingroute.R;
 import ie.appz.shortestwalkingroute.sqlite.FixOpenHelper;
 import ie.appz.shortestwalkingroute.sqlite.FixProvider;
@@ -32,15 +36,13 @@ import ie.appz.shortestwalkingroute.sqlite.FixProvider;
 public class LocationService extends Service implements TextToSpeech.OnInitListener {
 
     public static float oldAccuracy = 12;
-    int mRouteNo;
-    /**
-     */
     FixOpenHelper mFixOpenHelper;
     Location lastLocation;
     LocationManager mLocationManager;
     LocationListener networkListener;
     LocationListener gpsListener;
-    float totalDistance = 0, spreadDistance = 0;
+    private int mRouteNo;
+    private float totalDistance = 0, spreadDistance = 0;
     private TextToSpeech mTextToSpeech;
     private boolean textToSpeech_Initialized = false;
     private NotificationManager mNotificationManager;
@@ -49,8 +51,7 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
     public void onCreate() {
         super.onCreate();
         mTextToSpeech = new TextToSpeech(this, this);
-        mLocationManager = (LocationManager) this
-                .getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         networkListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 if (lastLocation == null || (location.getTime() - lastLocation.getTime()) > 10000) {
@@ -89,34 +90,52 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
         if (intent != null) {
             mRouteNo = intent.getIntExtra("HIGHESTROUTE", 1);
-            SharedPreferences settings = getSharedPreferences(ie.appz.shortestwalkingroute.CaptureRouteActivity.PREFS_NAME, MODE_PRIVATE);
-            SharedPreferences.Editor editor = settings.edit();
             editor.putInt("HIGHESTROUTE", mRouteNo);
-            editor.commit();
+            editor.apply();
         } else {
-            SharedPreferences settings = getSharedPreferences(ie.appz.shortestwalkingroute.CaptureRouteActivity.PREFS_NAME, MODE_PRIVATE);
             mRouteNo = settings.getInt("HIGHESTROUTE", 1);
         }
         /*
-         * Register the listener with the Location Manager to receive location
-		 * updates
+         * Register the listener with the Location Manager to receive location updates
 		 */
-        Log.d(LocationService.class.getName(),
-                "Starting capture of GPS data for route " + mRouteNo);
+        if (BuildConfig.DEBUG) {
+            Log.d(LocationService.class.getName(), "Starting capture of GPS data for route " + mRouteNo);
+        }
+
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 5, networkListener);
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, gpsListener);
+
+        startForeground(2004, getNotification());
         /*
          * The two integers in this request are the time (ms) and distance (m)
-		 * intervals of notifications respectively.
+		 * intervals of updates respectively.
 		 */
         return START_STICKY;
     }
 
+    private Notification getNotification() {
+        Intent notificationIntent = new Intent(this, CaptureRouteActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, MODE_PRIVATE,
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(this);
+        nCompatBuilder.setAutoCancel(false);
+        nCompatBuilder.setOngoing(true);
+        nCompatBuilder.setContentTitle(getString(R.string.app_name));
+        nCompatBuilder.setContentText(getString(R.string.notification_content, mRouteNo));
+        nCompatBuilder.setContentIntent(contentIntent);
+        nCompatBuilder.setSmallIcon(R.drawable.ic_menu_capture);
+
+        return nCompatBuilder.build();
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -125,12 +144,14 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
          * This will reject any GPS fix with very poor accuracy
 		 */
         if (location.getAccuracy() < 100 && location.getAccuracy() < 2 * oldAccuracy) {
-            Log.d(LocationService.class.getName(), "Adding fix to " + FixOpenHelper.FIX_TABLE_NAME + " in route number " + mRouteNo + ". Fix provided by " + location.getProvider());
+            if (BuildConfig.DEBUG) {
+                Log.d(LocationService.class.getName(), "Adding fix to " + FixOpenHelper.FIX_TABLE_NAME + " in route number " + mRouteNo + ". Fix provided by " + location.getProvider());
+            }
             if (lastLocation == null) {
                 lastLocation = location;
             }
             mFixOpenHelper.addFix(mRouteNo, location);
-            int notifyRange = getSharedPreferences(CaptureRouteActivity.PREFS_NAME, MODE_PRIVATE).getInt(CaptureRouteActivity.NOTIFY_RANGE, 0);
+            int notifyRange = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).getInt(CaptureRouteActivity.NOTIFY_RANGE, 0);
             if (notifyRange != 0 && lastLocation != null) {
                 float dt = location.distanceTo(lastLocation);
                 if (dt > lastLocation.getAccuracy() * 3) {
@@ -155,8 +176,7 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
                                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS);
                         notificationCompatBuilder.build();
                         Notification notification = notificationCompatBuilder.build();
-                        mNotificationManager = (NotificationManager) this
-                                .getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
                         mNotificationManager.notify(302, notification);
                     }
                     lastLocation = location;
@@ -169,12 +189,14 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
             ContentResolver contentResolver = this.getContentResolver();
             contentResolver.notifyChange(baseUri, null);
         } else {
-            Log.d(LocationService.class.getName(),
-                    "Rejected fix for " + FixOpenHelper.FIX_TABLE_NAME
-                            + " in route number " + mRouteNo
-                            + " because accuracy is " + location.getAccuracy()
-                            + ". Fix provided by " + location.getProvider()
-            );
+            if (BuildConfig.DEBUG) {
+                Log.d(LocationService.class.getName(),
+                        "Rejected fix for " + FixOpenHelper.FIX_TABLE_NAME
+                                + " in route number " + mRouteNo
+                                + " because accuracy is " + location.getAccuracy()
+                                + ". Fix provided by " + location.getProvider()
+                );
+            }
             oldAccuracy++;
         }
     }
@@ -190,9 +212,24 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
         return distanceString;
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        SharedPreferences.Editor editor = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).edit();
+        //A route with only one geopoint is not a route at all, reject it.
+        Cursor c = mFixOpenHelper.routeFixesTime(mRouteNo);
+        if (c.getCount() == 1) {
+            mFixOpenHelper.rejectRoute(mRouteNo);
+        } else {
+            String selectedRoutes = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).getString(DisplayRoutesActivity.SELECTED_ROUTES, "");
+            selectedRoutes = selectedRoutes + (char) (mRouteNo - 1);
+            editor.putString(DisplayRoutesActivity.SELECTED_ROUTES, selectedRoutes);
+        }
+        c.close();
+        editor.apply();
+
         mLocationManager.removeUpdates(networkListener);
         mLocationManager.removeUpdates(gpsListener);
 

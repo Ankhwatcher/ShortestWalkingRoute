@@ -4,9 +4,11 @@
 *.ap_
 *.dex
 *.project
+*.properties
 *.ini
 *.svg
 *.iml
+*.log
 proguard.cfg
 project.properties
 lint.xml

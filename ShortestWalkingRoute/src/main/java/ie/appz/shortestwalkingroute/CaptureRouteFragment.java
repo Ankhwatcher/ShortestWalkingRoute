@@ -21,13 +21,25 @@ import ie.appz.shortestwalkingroute.sqlite.FixProvider;
  * @author Rory
  */
 public class CaptureRouteFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final int FIX_LIST_LOADER = 0x01;
     public static final String REQUESTED_ROUTE = "REQUESTED_ROUTE";
-    private SimpleCursorAdapter adapter;
-
+    private static final int FIX_LIST_LOADER = 0x01;
     /**
      */
     FixOpenHelper fixOpenHelper;
+    private SimpleCursorAdapter adapter;
+
+    public CaptureRouteFragment() {
+    }
+
+    public static CaptureRouteFragment getInstance(int requestedRoute) {
+        CaptureRouteFragment captureRouteFragment = new CaptureRouteFragment();
+
+        Bundle arguments = new Bundle();
+        arguments.putInt(REQUESTED_ROUTE, requestedRoute);
+        captureRouteFragment.setArguments(arguments);
+
+        return captureRouteFragment;
+    }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
@@ -41,17 +53,15 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
 
         String[] uiBindFrom = {FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE, FixOpenHelper.ACCURACY, FixOpenHelper.SPEED};
         int[] uiBindTo = {R.id.latitudeText, R.id.longitudeText, R.id.accuracyText, R.id.speedText};
-        int routeNo = fixOpenHelper.highestRoute();
+        int routeNo = fixOpenHelper.getHighestRouteNo();
 
-        Bundle requestBundle = new Bundle();
-        requestBundle.putInt(REQUESTED_ROUTE, routeNo);
 
         // Cursor cursor = fixOpenHelper.routeFixesSpeed(routeNo);
         adapter = new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.captureroute_row, null, uiBindFrom, uiBindTo, 0);
 
         setListAdapter(adapter);
 
-        getLoaderManager().initLoader(FIX_LIST_LOADER, requestBundle, this);
+        getLoaderManager().initLoader(FIX_LIST_LOADER, getArguments(), this);
     }
 
     @Override
@@ -60,9 +70,14 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
 
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getListView().setScrollbarFadingEnabled(false);
+        getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+    }
 
-
-    public boolean onQueryChange(int newRouteNo) {
+    /*public boolean onQueryChange(int newRouteNo) {
         // Called when a new Route is being captured. Update
         // the search filter, and restart the loader to do a new query
         // with this filter.
@@ -73,7 +88,7 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
             return true;
         }
         return false;
-    }
+    }*/
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         int routeNo = args.getInt(REQUESTED_ROUTE, 1);

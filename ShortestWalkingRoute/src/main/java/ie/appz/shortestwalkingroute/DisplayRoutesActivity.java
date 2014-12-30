@@ -14,7 +14,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,9 +42,8 @@ import ie.appz.shortestwalkingroute.sqlite.FixOpenHelper;
 /**
  * @author Rory
  */
-public class DisplayRoutesActivity extends FragmentActivity {
+public class DisplayRoutesActivity extends ActionBarActivity {
 
-    public static final String PREFS_NAME = "ROUTE_PREFS";
     public static final String MAP_SATELLITE = "mapSatellite";
 
     public static final String SELECTED_ROUTES = "selectedRoutes";
@@ -72,42 +71,17 @@ public class DisplayRoutesActivity extends FragmentActivity {
         return bitmap;
     }
 
-    public void switchSource(View switchSource) {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        Boolean mapSatellite = !settings.getBoolean(MAP_SATELLITE, false);
-
-        GoogleMap googleMap = ((SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.route_map)).getMap();
-
-        ImageButton sourceSwitch = (ImageButton) findViewById(R.id.sourceSwitch);
-        // Boolean isNormal =
-        // sourceSwitch.getDrawable().equals(getResources().getDrawable(R.drawable.ic_menu_display));
-        if (mapSatellite) {
-            sourceSwitch.setImageResource(R.drawable.ic_menu_display_satellite);
-            googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        } else {
-            sourceSwitch.setImageResource(R.drawable.ic_menu_display);
-            googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        }
-
-        editor.putBoolean(MAP_SATELLITE, mapSatellite);
-        editor.commit();
-
-    }
-
-    ;
 
     protected Dialog onCreateDialog(int id) {
 
-        int highestRoute = fixHelper.highestRoute();
+        int highestRoute = fixHelper.getHighestRouteNo();
 
         List<CharSequence> optionList = new ArrayList<CharSequence>();
         for (int i = 1; i < (highestRoute + 1); i++) {
             optionList.add("Route " + i);
         }
 
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
         String selectedRoutes = settings.getString(SELECTED_ROUTES, "");
         int j = 0;
 
@@ -155,12 +129,12 @@ public class DisplayRoutesActivity extends FragmentActivity {
     @Override
     public void onResume() {
         super.onResume();
-        GoogleMap googleMap = ((SupportMapFragment) getSupportFragmentManager()
+        final GoogleMap googleMap = ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.route_map)).getMap();
         googleMap.setMyLocationEnabled(true);
         ImageButton sourceSwitch = (ImageButton) findViewById(R.id.sourceSwitch);
 
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
         String selectedRoutes = settings.getString(SELECTED_ROUTES, "");
         Boolean mapSatellite = settings.getBoolean(MAP_SATELLITE, false);
         if (mapSatellite) {
@@ -174,31 +148,23 @@ public class DisplayRoutesActivity extends FragmentActivity {
         sourceSwitch.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(this.getClass().getName(), "Switching Map Mode");
-                SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-                SharedPreferences.Editor editor = settings.edit();
-                Boolean mapSatellite = !settings.getBoolean(MAP_SATELLITE,
-                        false);
+                Boolean mapSatellite = googleMap.getMapType() == GoogleMap.MAP_TYPE_HYBRID;
 
-                GoogleMap googleMap = ((SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.route_map)).getMap();
+                Log.i(this.getClass().getName(), "Switching Map Mode to " + (mapSatellite ? "Normal" : "Satellite"));
+
+                SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = settings.edit();
+
 
                 if (mapSatellite) {
-                    Log.i(this.getClass().getName(), "Setting Map To Show "
-                            + "Map View.");
-
-                    ((ImageButton) v)
-                            .setImageResource(R.drawable.ic_menu_display_satellite);
+                    ((ImageButton) v).setImageResource(R.drawable.ic_menu_display_satellite);
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 } else {
-                    Log.i(this.getClass().getName(), "Setting Map To Show "
-                            + "Satellite View.");
-                    ((ImageButton) v)
-                            .setImageResource(R.drawable.ic_menu_display);
+                    ((ImageButton) v).setImageResource(R.drawable.ic_menu_display);
                     googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 }
-                editor.putBoolean(MAP_SATELLITE, mapSatellite);
-                editor.commit();
+                editor.putBoolean(MAP_SATELLITE, !mapSatellite);
+                editor.apply();
             }
         });
 
@@ -344,7 +310,7 @@ public class DisplayRoutesActivity extends FragmentActivity {
     }
 
     public int randomColorGenerator(int run) {
-		/* "run" is used when you are generating more than one color in a loop. */
+        /* "run" is used when you are generating more than one color in a loop. */
         Time seedTime = new Time();
         seedTime.setToNow();
         Random randomColor = new Random(seedTime.toMillis(true) + run * 25);
@@ -371,7 +337,7 @@ public class DisplayRoutesActivity extends FragmentActivity {
     public class routeMultiChoiceListener implements
             DialogInterface.OnMultiChoiceClickListener {
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
             String selectedRoutes = settings.getString(SELECTED_ROUTES, "");
             String selectedRoutesN = "";
@@ -379,8 +345,8 @@ public class DisplayRoutesActivity extends FragmentActivity {
 
             int routeColor;
             if (isChecked) {
-				/*
-				 * If an item is to be added, I will assume it was not there
+                /*
+                 * If an item is to be added, I will assume it was not there
 				 * already and simply add it to the String before any greater
 				 * value.
 				 */
@@ -400,8 +366,8 @@ public class DisplayRoutesActivity extends FragmentActivity {
                     }
 
                 }
-				/*
-				 * This will add the selection if it the greatest value so far.
+                /*
+                 * This will add the selection if it the greatest value so far.
 				 */
                 if (!done) {
                     selectedRoutesN = selectedRoutes + (char) which;

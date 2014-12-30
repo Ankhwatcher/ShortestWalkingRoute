@@ -24,7 +24,7 @@
     <string name="select_routes_to_display">Routes</string>
     <string name="capturing_route">Capturing Route</string>
     <string name="comma">,</string>
-    <string name="capturingroute">capturingRoute</string>
+
     <string-array name="notify_distances">
         <item>Off</item>
         <item>100m</item>
@@ -33,5 +33,7 @@
         <item>400m</item>
     </string-array>
 
+    <string name="notification_content">Capturing route %d</string>
+    <string name="toast_capturing_x">"Now Capturing Route Number: %d"</string>
 
 </resources>

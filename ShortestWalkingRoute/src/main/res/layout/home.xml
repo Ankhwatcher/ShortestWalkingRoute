@@ -1,100 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/home_table"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dip"
+    android:layout_marginRight="16dip"
+    android:orientation="vertical">
+
+    <TableRow
+        android:id="@+id/fragmentRow0"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="1dip"
-        android:paddingTop="1dip" >
-
+        android:clickable="true"
+        android:padding="6dip">
+
         <ImageView
-            android:id="@+id/activityIcon"
             android:layout_width="wrap_content"
             android:layout_height="48dip"
-            android:layout_alignParentLeft="true"
-            android:contentDescription="@string/ic_launcher_description"
-            android:src="@drawable/ic_launcher" />
+            android:contentDescription="@string/ic_menu_capture_description"
+            android:src="@drawable/ic_menu_capture" />
+
+        <View
+            android:layout_width="2dip"
+            android:layout_height="36dip" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/activityIcon"
-            android:text="@string/app_name"
+            android:layout_width="fill_parent"
+            android:layout_gravity="center_vertical"
+            android:text="@string/fragment0"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-    </RelativeLayout>
+    </TableRow>
 
     <View
-        android:layout_width="fill_parent"
         android:layout_height="2dip"
-        android:background="@color/ics_cyan" />
+        android:background="#FF909090" />
 
-    <TableLayout
-        android:id="@+id/home_table"
-        android:layout_width="wrap_content"
+    <TableRow
+        android:id="@+id/fragmentRow1"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="16dip"
-        android:orientation="vertical" >
+        android:clickable="true"
+        android:padding="6dip"
+        android:visibility="invisible">
 
-        <TableRow
-            android:id="@+id/fragmentRow0"
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:padding="6dip" >
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="48dip"
-                android:contentDescription="@string/ic_menu_capture_description"
-                android:src="@drawable/ic_menu_capture" />
-
-            <View
-                android:layout_width="2dip"
-                android:layout_height="36dip" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_gravity="center_vertical"
-                android:text="@string/fragment0"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-        </TableRow>
+            android:contentDescription="@string/ic_menu_capture_description"
+            android:src="@drawable/ic_menu_display" />
 
         <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
+            android:layout_width="2dip"
+            android:layout_height="36dip" />
 
-        <TableRow
-            android:id="@+id/fragmentRow1"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:padding="6dip"
-            android:visibility="invisible" >
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_gravity="center_vertical"
+            android:text="@string/fragment1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </TableRow>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/ic_menu_capture_description"
-                android:src="@drawable/ic_menu_display" />
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+</TableLayout>
 
-            <View
-                android:layout_width="2dip"
-                android:layout_height="36dip" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_gravity="center_vertical"
-                android:text="@string/fragment1"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-        </TableRow>
-
-        <View
-            android:layout_height="2dip"
-            android:background="#FF909090" />
-    </TableLayout>
-
-</LinearLayout>
