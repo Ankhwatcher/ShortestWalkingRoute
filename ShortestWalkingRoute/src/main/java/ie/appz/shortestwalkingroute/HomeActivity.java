@@ -46,7 +46,7 @@ public class HomeActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
 
-        setContentView(R.layout.home);
+        setContentView(R.layout.activity_home);
         super.onResume();
 
 		/* SetOnClickListener For Capture Route */

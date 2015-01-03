@@ -10,9 +10,9 @@
 *.iml
 *.log
 proguard.cfg
-project.properties
 lint.xml
 res/values/apikeys.xml
+ShortestWalkingRoute/manifest-merger-release-report.txt
 bin/
 gen/
 libs/
@@ -20,4 +20,3 @@ libs/
 .gradle/
 .idea/
 build/
-/local.properties

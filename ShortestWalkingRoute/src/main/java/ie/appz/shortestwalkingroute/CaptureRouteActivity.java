@@ -40,7 +40,7 @@ public class CaptureRouteActivity extends ActionBarActivity implements ActionBar
     public void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.captureroute_list);
+        setContentView(R.layout.activity_capture_route);
         setSupportProgressBarIndeterminateVisibility(false);
         ArrayAdapter<CharSequence> mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.notify_distances, android.R.layout.simple_spinner_dropdown_item);
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);

@@ -59,10 +59,10 @@ public class FixProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         switch (uriMatcher.match(uri)) {
-            // ---get all books---
+            // ---get all routes---
             case ALL:
                 return "vnd.android.cursor.dir/vnd.appz.shortestwalkingroute.route ";
-            // ---get a particular book---
+            // ---get a particular routes---
             case ONEROUTE:
                 return "vnd.android.cursor.item/vnd.appz.shortestwalkingroute.route ";
             default:
