@@ -35,7 +35,7 @@ public class FixProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         int uriType = uriMatcher.match(uri);
         fixDB = fixOpenHelper.getWritableDatabase();
-        int rowsAffected = 0;
+        int rowsAffected;
         switch (uriType) {
             case ALL:
                 rowsAffected = fixDB.delete(FixOpenHelper.FIX_TABLE_NAME, selection, selectionArgs);

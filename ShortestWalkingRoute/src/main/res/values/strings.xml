@@ -34,6 +34,16 @@
     </string-array>
 
     <string name="notification_content">Capturing route %d</string>
-    <string name="toast_capturing_x">"Now Capturing Route Number: %d"</string>
+    <string name="toast_capturing_x">Now Capturing Route Number: %d</string>
+
+    <string name="share">Share</string>
+    <string name="share_text">I\'m determining the fastest way with Shortest Walking Route!</string>
+    <string name="share_text_route">I got from %1$s to %2$s in %3$s following route %4$d!\nMy average speed was %5$.1f km/h.</string>
+
+    <string name="route_point_title">Route %1$d - Total Time %2$s Average Speed %3$.1f km/h</string>
+    <string name="route_point_snippet">Point Time %1$s Distance Travelled %2$s</string>
+    <string name="route_point_title_final">Route %1$d - Final Point - Total Time %2$s</string>
+    <string name="route_point_snippet_final">Average Speed %1$.1f km/h Total Distance %2$s</string>
+    <string name="route_x">"Route %d"</string>
 
 </resources>

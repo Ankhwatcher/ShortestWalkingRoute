@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -93,17 +94,17 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
         SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         if (intent != null) {
-            mRouteNo = intent.getIntExtra("HIGHESTROUTE", 1);
+            mRouteNo = intent.getIntExtra("HIGHESTROUTE", 0);
             editor.putInt("HIGHESTROUTE", mRouteNo);
             editor.apply();
         } else {
-            mRouteNo = settings.getInt("HIGHESTROUTE", 1);
+            mRouteNo = settings.getInt("HIGHESTROUTE", 0);
         }
         /*
          * Register the listener with the Location Manager to receive location updates
 		 */
         if (BuildConfig.DEBUG) {
-            Log.d(LocationService.class.getName(), "Starting capture of GPS data for route " + mRouteNo);
+            Log.d(LocationService.class.getName(), "Starting capture of location data for route " + mRouteNo);
         }
 
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 5, networkListener);
@@ -118,16 +119,17 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
     }
 
     private Notification getNotification() {
+        int displayRouteNo = mRouteNo + 1;
+
         Intent notificationIntent = new Intent(this, CaptureRouteActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, MODE_PRIVATE,
-                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, MODE_PRIVATE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(this);
         nCompatBuilder.setAutoCancel(false);
         nCompatBuilder.setOngoing(true);
         nCompatBuilder.setContentTitle(getString(R.string.app_name));
-        nCompatBuilder.setContentText(getString(R.string.notification_content, mRouteNo));
+        nCompatBuilder.setContentText(getString(R.string.notification_content, displayRouteNo));
         nCompatBuilder.setContentIntent(contentIntent);
         nCompatBuilder.setSmallIcon(R.drawable.ic_menu_capture);
 
@@ -150,7 +152,24 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
             if (lastLocation == null) {
                 lastLocation = location;
             }
-            mFixOpenHelper.addFix(mRouteNo, location);
+
+
+            //mFixOpenHelper.addFix(mRouteNo, location);
+            Uri uri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + mRouteNo);
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(FixOpenHelper.ROUTE_NUMBER, mRouteNo);
+            contentValues.put(FixOpenHelper.LATITUDE, location.getLatitude());
+            contentValues.put(FixOpenHelper.LONGITUDE, location.getLongitude());
+            contentValues.put(FixOpenHelper.ACCURACY, location.getAccuracy());
+            contentValues.put(FixOpenHelper.SPEED, location.getSpeed());
+            contentValues.put(FixOpenHelper.SOURCE, location.getProvider());
+            contentValues.put(FixOpenHelper.TIME, location.getTime());
+
+            ContentResolver contentResolver = this.getContentResolver();
+            contentResolver.insert(uri, contentValues);
+
+
             int notifyRange = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).getInt(CaptureRouteActivity.NOTIFY_RANGE, 0);
             if (notifyRange != 0 && lastLocation != null) {
                 float dt = location.distanceTo(lastLocation);
@@ -184,10 +203,7 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
             }
 
             oldAccuracy = (oldAccuracy + location.getAccuracy()) / 2;
-            Uri baseUri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + mRouteNo);
 
-            ContentResolver contentResolver = this.getContentResolver();
-            contentResolver.notifyChange(baseUri, null);
         } else {
             if (BuildConfig.DEBUG) {
                 Log.d(LocationService.class.getName(),
@@ -216,22 +232,25 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mLocationManager.removeUpdates(networkListener);
+        mLocationManager.removeUpdates(gpsListener);
+
 
         SharedPreferences.Editor editor = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).edit();
         //A route with only one geopoint is not a route at all, reject it.
         Cursor c = mFixOpenHelper.routeFixesTime(mRouteNo);
         if (c.getCount() == 1) {
             mFixOpenHelper.rejectRoute(mRouteNo);
+            String selectedRoutes = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).getString(DisplayRoutesActivity.SELECTED_ROUTES, "");
+            selectedRoutes = selectedRoutes.replace(String.valueOf((char) (mRouteNo)), "");
+            editor.putString(DisplayRoutesActivity.SELECTED_ROUTES, selectedRoutes);
         } else {
             String selectedRoutes = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).getString(DisplayRoutesActivity.SELECTED_ROUTES, "");
-            selectedRoutes = selectedRoutes + (char) (mRouteNo - 1);
+            selectedRoutes = selectedRoutes + (char) (mRouteNo);
             editor.putString(DisplayRoutesActivity.SELECTED_ROUTES, selectedRoutes);
         }
         c.close();
         editor.apply();
-
-        mLocationManager.removeUpdates(networkListener);
-        mLocationManager.removeUpdates(gpsListener);
 
 
         if (mNotificationManager != null) {

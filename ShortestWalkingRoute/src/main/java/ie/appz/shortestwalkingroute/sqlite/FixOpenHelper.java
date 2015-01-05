@@ -28,17 +28,7 @@ public class FixOpenHelper extends SQLiteOpenHelper {
             + SPEED + " real,"
             + TIME + " integer, "
             + SOURCE + " text not null" + ");";
-    public static final String ROUTE_LENGTH = "route_length";
-    public static final String ROUTE_TIME = "route_time";
     public static final String ROUTE_TABLE_NAME = "route_table";
-    public static final String TARGET = "target";
-    /* CREATE_ROUTE_TABLE SQL statement */
-    private static final String CREATE_ROUTE_TABLE = "create table " + ROUTE_TABLE_NAME + "("
-            + COLUMN_ID + " integer primary key autoincrement, "
-            + ROUTE_NUMBER + " integer, "
-            + TARGET + " integer,"
-            + ROUTE_LENGTH + " real,"
-            + ROUTE_TIME + " integer" + ");";
     public static final String TARGET_TABLE_NAME = "target_table";
 
     private static final String DATABASE_NAME = "fixtable.db";
@@ -51,7 +41,6 @@ public class FixOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_FIX_TABLE);
-        db.execSQL(CREATE_ROUTE_TABLE);
     }
 
     @Override
@@ -82,9 +71,10 @@ public class FixOpenHelper extends SQLiteOpenHelper {
 
     public int getHighestRouteNo() {
         SQLiteDatabase db = getReadableDatabase();
-        int highRoute = 0;
-        highRoute = (int) DatabaseUtils.longForQuery(db, "SELECT MAX("
-                + ROUTE_NUMBER + ") FROM " + FIX_TABLE_NAME, null);
+        int highRoute = -1;
+        if (DatabaseUtils.longForQuery(db, "SELECT COUNT(*) FROM " + FIX_TABLE_NAME, null) > 0) {
+            highRoute = (int) DatabaseUtils.longForQuery(db, "SELECT MAX(" + ROUTE_NUMBER + ") FROM " + FIX_TABLE_NAME, null);
+        }
         db.close();
         return highRoute;
 
@@ -119,16 +109,14 @@ public class FixOpenHelper extends SQLiteOpenHelper {
         float minAcc = 0;
         SQLiteDatabase db = getReadableDatabase();
         try {
-            Cursor results = db.rawQuery("SELECT MIN(" + ACCURACY + ") FROM "
-                    + FIX_TABLE_NAME, null);
+            Cursor results = db.rawQuery("SELECT MIN(" + ACCURACY + ") FROM " + FIX_TABLE_NAME, null);
             if (results.moveToFirst()) {
                 minAcc = results.getFloat(0);
             }
             results.close();
         } catch (Exception e) {
             Log.e(FixOpenHelper.class.getName(),
-                    "Unable to get minimum Accuracy for Route " + routeNo + ".",
-                    e);
+                    "Unable to get minimum Accuracy for Route " + routeNo + ".", e);
         }
         return minAcc;
     }

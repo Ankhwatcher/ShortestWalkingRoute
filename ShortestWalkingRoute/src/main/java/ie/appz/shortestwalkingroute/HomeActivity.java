@@ -58,7 +58,7 @@ public class HomeActivity extends ActionBarActivity {
 		 * one route is recorded
 		 */
         FixOpenHelper fixHelper = new FixOpenHelper(this);
-        if (fixHelper.getHighestRouteNo() >= 1) {
+        if (fixHelper.getHighestRouteNo() != -1) {
             TableRow fragmentRow1 = (TableRow) findViewById(R.id.fragmentRow1);
             fragmentRow1.setVisibility(View.VISIBLE);
             fragmentRow1.setOnClickListener(fragmentLaunch1);

@@ -1,7 +1,6 @@
 package ie.appz.shortestwalkingroute;
 
 import android.app.ActivityManager;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import ie.appz.shortestwalkingroute.sqlite.FixOpenHelper;
 public class CaptureRouteActivity extends ActionBarActivity implements ActionBar.OnNavigationListener {
     public static final String NOTIFY_RANGE = "notify_range";
     private static final int CAPTURING_ROUTE = 1;
-    private static NotificationManager notificationManager;
     FixOpenHelper fixHelper;
     private int highestRoute = MODE_PRIVATE;
     private boolean captureStopped = true;
@@ -68,7 +66,7 @@ public class CaptureRouteActivity extends ActionBarActivity implements ActionBar
     private void startCapture() {
         captureStopped = false;
         if (startCaptureMenuItem != null) {
-            startCaptureMenuItem.setIcon(android.R.drawable.ic_media_pause);
+            startCaptureMenuItem.setIcon(R.drawable.ic_action_stop);
             startCaptureMenuItem.setTitle(getString(R.string.start));
         }
         highestRoute = fixHelper.getHighestRouteNo();
@@ -80,7 +78,8 @@ public class CaptureRouteActivity extends ActionBarActivity implements ActionBar
             i.putExtra("HIGHESTROUTE", highestRoute);
             startService(i);
 
-            Toast.makeText(CaptureRouteActivity.this, getString(R.string.toast_capturing_x, highestRoute), Toast.LENGTH_SHORT).show();
+            int displayRouteNumber = highestRoute + 1;
+            Toast.makeText(CaptureRouteActivity.this, getString(R.string.toast_capturing_x, displayRouteNumber), Toast.LENGTH_SHORT).show();
 
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.container, CaptureRouteFragment.getInstance(highestRoute)).commit();
@@ -89,7 +88,7 @@ public class CaptureRouteActivity extends ActionBarActivity implements ActionBar
     }
 
     private void stopCapture() {
-        startCaptureMenuItem.setIcon(android.R.drawable.ic_media_play);
+        startCaptureMenuItem.setIcon(R.drawable.ic_action_play);
         startCaptureMenuItem.setTitle(getString(R.string.stop));
         stopService(new Intent(CaptureRouteActivity.this, LocationService.class));
         setSupportProgressBarIndeterminateVisibility(false);
@@ -105,7 +104,7 @@ public class CaptureRouteActivity extends ActionBarActivity implements ActionBar
         startCaptureMenuItem = menu.findItem(R.id.action_start);
         if (isMyServiceRunning(LocationService.class)) {
             startCaptureMenuItem.setTitle(R.string.stop);
-            startCaptureMenuItem.setIcon(android.R.drawable.ic_media_pause);
+            startCaptureMenuItem.setIcon(R.drawable.ic_action_stop);
         }
 
         return true;
@@ -146,8 +145,6 @@ public class CaptureRouteActivity extends ActionBarActivity implements ActionBar
     protected void onDestroy() {
         super.onDestroy();
 
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(CAPTURING_ROUTE);
 
         if (fixHelper != null) {
             fixHelper.close();
