@@ -153,8 +153,6 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
                 lastLocation = location;
             }
 
-
-            //mFixOpenHelper.addFix(mRouteNo, location);
             Uri uri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + mRouteNo);
 
             ContentValues contentValues = new ContentValues();
@@ -240,7 +238,10 @@ public class LocationService extends Service implements TextToSpeech.OnInitListe
         //A route with only one geopoint is not a route at all, reject it.
         Cursor c = mFixOpenHelper.routeFixesTime(mRouteNo);
         if (c.getCount() == 1) {
-            mFixOpenHelper.rejectRoute(mRouteNo);
+            Uri uri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + mRouteNo);
+            ContentResolver contentResolver = this.getContentResolver();
+            contentResolver.delete(uri, null, null);
+
             String selectedRoutes = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE).getString(DisplayRoutesActivity.SELECTED_ROUTES, "");
             selectedRoutes = selectedRoutes.replace(String.valueOf((char) (mRouteNo)), "");
             editor.putString(DisplayRoutesActivity.SELECTED_ROUTES, selectedRoutes);
