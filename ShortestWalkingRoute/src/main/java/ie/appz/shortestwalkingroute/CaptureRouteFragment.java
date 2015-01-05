@@ -50,7 +50,7 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
         String[] uiBindFrom = {FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE, FixOpenHelper.ACCURACY, FixOpenHelper.SPEED};
         int[] uiBindTo = {R.id.latitudeText, R.id.longitudeText, R.id.accuracyText, R.id.speedText};
 
-        adapter = new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.row_capture_route, null, uiBindFrom, uiBindTo, 0);
+        adapter = new SimpleCursorAdapter(getActivity(), R.layout.row_capture_route, null, uiBindFrom, uiBindTo, 0);
 
         setListAdapter(adapter);
 
@@ -73,11 +73,11 @@ public class CaptureRouteFragment extends ListFragment implements LoaderManager.
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         int routeNo = args.getInt(REQUESTED_ROUTE, 1);
 
-        Uri baseUri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + routeNo);
+        Uri uri = Uri.withAppendedPath(FixProvider.CONTENT_URI, FixProvider.ROUTE + "/" + routeNo);
 
         String[] projection = {FixOpenHelper.COLUMN_ID, FixOpenHelper.LATITUDE, FixOpenHelper.LONGITUDE, FixOpenHelper.ACCURACY, FixOpenHelper.SPEED};
 
-        return new CursorLoader(getActivity(), baseUri, projection, null, null, null);
+        return new CursorLoader(getActivity(), uri, projection, null, null, null);
     }
 
     @Override

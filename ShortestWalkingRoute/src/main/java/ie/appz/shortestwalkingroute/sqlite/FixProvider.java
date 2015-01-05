@@ -77,9 +77,9 @@ public class FixProvider extends ContentProvider {
 
         // ---if added successfully---
         if (rowID > 0) {
-            Uri appendedUri = ContentUris.withAppendedId(CONTENT_URI, rowID);
-            getContext().getContentResolver().notifyChange(appendedUri, null);
-            return appendedUri;
+            getContext().getContentResolver().notifyChange(uri, null);
+
+            return ContentUris.withAppendedId(CONTENT_URI, rowID);
         }
         throw new SQLException("Failed to insert row into " + uri);
     }
