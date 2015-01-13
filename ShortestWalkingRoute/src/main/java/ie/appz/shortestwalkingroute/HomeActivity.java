@@ -7,6 +7,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TableRow;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ie.appz.shortestwalkingroute.sqlite.FixOpenHelper;
 
@@ -28,8 +32,30 @@ public class HomeActivity extends ActionBarActivity {
     private OnClickListener fragmentLaunch1 = new OnClickListener() {
 
         public void onClick(View v) {
-            Intent intent = new Intent(HAContext, DisplayRoutesActivity.class);
-            startActivity(intent);
+            switch (GooglePlayServicesUtil.isGooglePlayServicesAvailable(HomeActivity.this)) {
+                case ConnectionResult.SUCCESS:
+                    Intent intent = new Intent(HAContext, DisplayRoutesActivity.class);
+                    startActivity(intent);
+                    break;
+
+                case ConnectionResult.SERVICE_MISSING:
+                case ConnectionResult.SERVICE_INVALID:
+                    Toast.makeText(HomeActivity.this, getString(R.string.error_services_install), Toast.LENGTH_LONG).show();
+                    break;
+
+                case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+                    Toast.makeText(HomeActivity.this, getString(R.string.error_services_update), Toast.LENGTH_LONG).show();
+                    break;
+
+                case ConnectionResult.SERVICE_DISABLED:
+                    Toast.makeText(HomeActivity.this, getString(R.string.error_services_enable), Toast.LENGTH_LONG).show();
+                    break;
+
+                default:
+                    Toast.makeText(HomeActivity.this, getString(R.string.error_services_general), Toast.LENGTH_LONG).show();
+            }
+
+
         }
     };
 

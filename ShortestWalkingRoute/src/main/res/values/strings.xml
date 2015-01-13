@@ -45,5 +45,9 @@
     <string name="route_point_title_final">Route %1$d - Final Point - Total Time %2$s</string>
     <string name="route_point_snippet_final">Average Speed %1$.1f km/h Total Distance %2$s</string>
     <string name="route_x">"Route %d"</string>
+    <string name="error_services_install">Please install Google Play Services!</string>
+    <string name="error_services_update">Please update Google Play Services!</string>
+    <string name="error_services_enable">Please enable Google Play Services!</string>
+    <string name="error_services_general">Something related to Google Play Services has gone wrong.</string>
 
 </resources>
